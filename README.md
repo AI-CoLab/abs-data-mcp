@@ -1,7 +1,6 @@
 # ABS Data API — cartography and front door
 
-The Australian Bureau of Statistics Data API is valuable and badly described.
-This project measured what it actually serves — every dataflow, by retrieval —
+This project measured what the Australian Bureau of Statistics Data API actually serves — every dataflow, by retrieval —
 and exposes the result as a typed front door: an MCP server and an HTTP API
 that only ever offer what exists.
 
