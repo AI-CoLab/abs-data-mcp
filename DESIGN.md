@@ -636,6 +636,29 @@ but is written so the move is an import swap rather than a rewrite.
     `MCP-Protocol-Version` header beside its body envelope, as the
     revision requires; 2025-revision clients (`initialize`) are served
     unchanged.
+36. **Person first, not cartography first (2026-11-06, same day).** The
+    people arriving want to ask ABS data a question through the AI tool they
+    already use; how the catalogue was measured is not their concern. The
+    framing now follows the "From available to accessible" workshop (6 Nov
+    2026): the page leads with *ask the question you actually have*, then
+    Declare → Investigate → Generate, *public isn't the same as accessible*
+    (finding, retrieving, interpreting, applying), the setup guides,
+    try-asking prompts written as "who I am and what I care about", and a
+    forwardable case for approvers (low risk, low complexity, high impact;
+    not new software, not a chatbot). The measurement survives as one plain
+    line — *if what you ask for isn't published, it says so and tells you
+    what is* — and in the README's "How it was built". The name is **ABS
+    Data** everywhere ("observed" is gone from the wordmark, the MCP server
+    title, the Registry entry, the OpenAPI title); the palette stays but its
+    colours carry no meaning (`--carto-teal`, `--carto-amber`); the icon is a
+    speech bubble with a rising line in it. What AI tools read changed too:
+    the server instructions and the usage guide now tell the model that
+    people describe situations, not datasets, so it should work out what the
+    question depends on and answer in their terms with caveats. The
+    `explain_metadata_gap` prompt and `abs://findings` remain for anyone who
+    asks. Live 2026-11-06 (version 2589bbbd). `server.json` carries the new
+    title and description as 0.2.0; the MCP Registry still lists 0.1.0 until
+    it is re-published (`mcp-publisher login github`, `mcp-publisher publish`).
 
 ## 4. Destination
 

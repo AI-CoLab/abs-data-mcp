@@ -255,7 +255,7 @@ const claudeOrg = (): Guide => ({
     label: "Message for your Owner",
     message: `Hi,
 
-Could you add the ABS Data connector to our Claude organisation? It gives Claude the Australian Bureau of Statistics' public data — 1,227 tables, every option confirmed to serve data. It is read-only public data and needs no sign-in.
+Could you add the ABS Data connector to our Claude organisation? It lets us ask Claude questions in plain language and get answers from the Australian Bureau of Statistics' data, fetched live with the source for each number. It's anonymous, read-only access to data that's already public, and needs no sign-in.
 
 One-click (opens Organization settings → Connectors, prefilled):
 ${claudeOrgInstallUrl()}
@@ -384,7 +384,7 @@ const chatgpt = (): Guide => ({
     label: "Message for your workspace admin",
     message: `Hi,
 
-Could you add the ABS Data connector to our ChatGPT workspace? It gives ChatGPT the Australian Bureau of Statistics' public data — 1,227 tables, every option confirmed to serve data. It is read-only public data and needs no sign-in.
+Could you add the ABS Data connector to our ChatGPT workspace? It lets us ask ChatGPT questions in plain language and get answers from the Australian Bureau of Statistics' data, fetched live with the source for each number. It's anonymous, read-only access to data that's already public, and needs no sign-in.
 
 Plugins → + → Add custom MCP server
 Server URL: ${connectorUrl()}
@@ -572,7 +572,7 @@ const copilot = (): Guide => ({
     label: "Message for your IT team",
     message: `Hi,
 
-Could we make the ABS Data connector available in Microsoft 365 Copilot? It gives Copilot the Australian Bureau of Statistics' public data — 1,227 tables, every option confirmed to serve data. It is read-only public data and needs no authentication.
+Could we make the ABS Data connector available in Microsoft 365 Copilot? It lets staff ask Copilot questions in plain language and get answers from the Australian Bureau of Statistics' data, fetched live with the source for each number. It's anonymous, read-only access to data that's already public, needs no authentication, and is a web address rather than new software to install.
 
 The simplest route is a custom federated connector:
 Microsoft 365 admin center → Copilot → Connectors → Gallery → Create a new connector → Connect to MCP server → Add

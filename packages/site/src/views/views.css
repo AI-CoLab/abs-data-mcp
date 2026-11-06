@@ -69,8 +69,8 @@ html.theme-cartography body {
 }
 
 .v-ok {
-	border: 1px solid color-mix(in oklab, var(--carto-observed) 45%, transparent);
-	background: var(--carto-observed-soft);
+	border: 1px solid color-mix(in oklab, var(--carto-teal) 45%, transparent);
+	background: var(--carto-teal-soft);
 	border-radius: 6px;
 	padding: 10px 12px;
 	display: grid;

@@ -38,7 +38,7 @@ export function registerPrompts(server: McpServer): void {
     "compare_capitals",
     {
       title: "Compare the capital cities",
-      description: "Compare an indicator across Australia's capital cities — CPI components, rents, labour force — using the observed tables.",
+      description: "Compare an indicator across Australia's capital cities — CPI components, rents, labour force.",
       argsSchema: z.object({
         indicator: z.string().describe("What to compare, e.g. 'rents', 'unemployment rate', 'all groups CPI'"),
       }),

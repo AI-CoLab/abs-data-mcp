@@ -134,7 +134,7 @@ body {
 	border-radius: var(--r-md);
 }
 .ad-row[data-about="abs"] details {
-	border-inline-start: 3px solid var(--carto-declared);
+	border-inline-start: 3px solid var(--carto-amber);
 }
 .ad-row details[open] {
 	border-color: var(--carto-rule-strong);
@@ -171,8 +171,8 @@ body {
 	color: var(--carto-ink-soft);
 }
 .ad-tag[data-kind="about"][data-value="abs"] {
-	background: var(--carto-declared-soft);
-	border-color: var(--carto-declared);
+	background: var(--carto-amber-soft);
+	border-color: var(--carto-amber);
 	color: var(--color-base-content);
 }
 .ad-tag[data-kind="status"][data-value="new"] {

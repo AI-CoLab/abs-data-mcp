@@ -1,7 +1,8 @@
 /* ── The landing page, in the cartography look ───────────────────────────────
    Survey paper: cool ground, white plates with hairline rules, ink-blue
-   actions, amber for what ABS declares and teal for what exists. The grid
-   motif appears twice — behind the hero and in the mark — and nowhere else. */
+   actions, teal and amber as plain accents. The faint grid behind the hero is
+   the only decoration. The page is about people asking questions, so the
+   words lead and the furniture stays quiet. */
 
 html.theme-cartography {
 	/* The page's ladders: a reading-sized body and the map's tight corners. */
@@ -130,12 +131,16 @@ h4 {
 	text-decoration: none;
 	margin-inline-end: auto;
 }
-.lp-wordmark-dot {
-	color: var(--carto-declared);
-}
 .lp-wordmark-sub {
-	color: var(--carto-observed);
-	font-weight: 500;
+	font-family: var(--font-sans);
+	font-size: 14px;
+	font-weight: 400;
+	color: var(--carto-ink-soft);
+}
+@media (max-width: 479px) {
+	.lp-wordmark-sub {
+		display: none;
+	}
 }
 .lp-nav {
 	display: flex;
@@ -177,26 +182,23 @@ h4 {
 .lp-mark {
 	flex: none;
 }
-/* A logo, so one colour in both schemes. */
+/* A logo, so one colour in both schemes: a question (the bubble) becoming a
+   chart (the line rising out of it). Matches public/icon.svg. */
 .lp-mark-ground {
 	fill: #12457a;
 }
-.lp-mark-grid {
-	stroke: #ffffff;
-	stroke-opacity: 0.16;
-	stroke-width: 1;
+.lp-mark-bubble {
+	fill: #ffffff;
 }
 .lp-mark-line {
 	fill: none;
-	stroke: #e0a85a;
-	stroke-width: 2.6;
+	stroke: #12457a;
+	stroke-width: 2.4;
 	stroke-linecap: round;
 	stroke-linejoin: round;
 }
 .lp-mark-point {
-	fill: #45c3ae;
-	stroke: #12457a;
-	stroke-width: 1.2;
+	fill: #e0a85a;
 }
 
 /* ── Hero ───────────────────────────────────────────────────────────────── */
@@ -240,7 +242,7 @@ h4 {
 		padding-block: 88px 72px;
 	}
 }
-/* The map's legend: the URL, the key, the survey date. */
+/* The start card: the one web address, and what it is in three facts. */
 .lp-legend {
 	display: grid;
 	gap: 14px;
@@ -266,16 +268,33 @@ h4 {
 	font-size: 14px;
 	color: var(--carto-ink-soft);
 }
-.lp-legend .lp-density {
-	margin: 6px 0 0;
-	padding-top: 14px;
+.lp-facts {
+	list-style: none;
+	margin: 2px 0 0;
+	padding: 14px 0 0;
 	border-top: 1px solid var(--carto-rule);
+	display: grid;
+	gap: 10px;
+	font-size: 14.5px;
 }
-.lp-legend .lp-density-legend {
-	flex-direction: column;
+.lp-facts li {
+	display: grid;
+	grid-template-columns: 18px 1fr;
+	gap: 10px;
+	align-items: baseline;
 }
-.lp-legend .lp-status {
-	margin: 0;
+.lp-facts li::before {
+	content: "";
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--carto-teal);
+	box-shadow: 0 0 0 3px var(--carto-teal-soft);
+	transform: translateY(1px);
+	justify-self: center;
+}
+.lp-facts strong {
+	font-weight: 600;
 }
 .lp-hero h1 {
 	margin: 0;
@@ -379,82 +398,139 @@ h4 {
 	font-size: 15px;
 }
 
-/* ── Declared vs observed ───────────────────────────────────────────────── */
-.lp-density {
+/* ── How it works: Declare, Investigate, Generate ───────────────────────── */
+.lp-dig {
+	list-style: none;
 	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 16px;
+	counter-reset: dig;
 }
-.lp-density-bar {
+@media (min-width: 900px) {
+	.lp-dig {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 20px;
+	}
+}
+.lp-dig-step {
 	position: relative;
-	height: 12px;
-	background: var(--carto-declared-soft);
-	border: 1px solid color-mix(in oklab, var(--carto-declared) 55%, transparent);
-	border-radius: 2px;
-	background-image: repeating-linear-gradient(
-		90deg,
-		transparent 0 calc(10% - 1px),
-		color-mix(in oklab, var(--carto-declared) 30%, transparent) calc(10% - 1px) 10%
-	);
-}
-.lp-density-observed {
-	position: absolute;
-	inset-block: -1px;
-	left: -1px;
-	min-width: 4px;
-	background: var(--carto-observed);
-	border-radius: 2px 0 0 2px;
-}
-.lp-density-legend {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px 24px;
-	margin-top: 10px;
-	font-size: 13.5px;
-	color: var(--carto-ink-soft);
-}
-.lp-key {
-	display: inline-flex;
-	align-items: baseline;
+	padding: 22px 20px 20px;
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-lg);
+	display: grid;
 	gap: 8px;
+	align-content: start;
 }
-.lp-key i {
-	flex: none;
-	width: 10px;
-	height: 10px;
-	border-radius: 2px;
-	transform: translateY(1px);
+.lp-dig-letter {
+	font-family: var(--font-display);
+	font-size: 44px;
+	line-height: 1;
+	font-weight: 600;
+	color: var(--carto-accent);
 }
-.lp-key-declared i {
-	background: var(--carto-declared-soft);
-	border: 1px solid var(--carto-declared);
-}
-.lp-key-observed i {
-	background: var(--carto-observed);
-}
-.lp-key strong {
+.lp-dig-tag {
+	margin: 0;
 	font-family: var(--font-data);
-	font-weight: 500;
-	color: var(--color-base-content);
-}
-
-.lp-status {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 4px 16px;
-	margin: 20px 0 0;
-	font-size: 13px;
+	font-size: 11.5px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
 	color: var(--carto-ink-faint);
 }
-.lp-status strong {
-	font-weight: 500;
+.lp-dig-step h3 {
+	margin: 0;
+	font-size: 20px;
+	line-height: 1.25;
+}
+.lp-dig-step p {
+	margin: 0;
 	color: var(--carto-ink-soft);
 }
-.lp-status-dot {
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: var(--carto-observed);
-	box-shadow: 0 0 0 3px var(--carto-observed-soft);
+.lp-dig-step:not(:last-child)::after {
+	content: "→";
+	position: absolute;
+	right: -16px;
+	top: 34px;
+	font-size: 18px;
+	color: var(--carto-ink-faint);
+	display: none;
+}
+@media (min-width: 900px) {
+	.lp-dig-step:not(:last-child)::after {
+		display: block;
+	}
+}
+.lp-plainline {
+	margin: 24px 0 0;
+	max-width: 66ch;
+	padding: 12px 16px;
+	font-size: 15.5px;
+	background: var(--carto-teal-soft);
+	border-inline-start: 3px solid var(--carto-teal);
+	border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+/* ── Why it's needed: where people get stuck ────────────────────────────── */
+.lp-stalls {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 12px;
+}
+@media (min-width: 640px) {
+	.lp-stalls {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+@media (min-width: 1000px) {
+	.lp-stalls {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+.lp-stall {
+	padding: 18px;
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-lg);
+	display: grid;
+	gap: 6px;
+	align-content: start;
+}
+.lp-stall-n {
+	font-family: var(--font-display);
+	font-size: 28px;
+	line-height: 1;
+	color: var(--carto-amber);
+}
+.lp-stall h3 {
+	margin: 0;
+	font-size: 18px;
+}
+.lp-stall-was {
+	margin: 0;
+	font-size: 14.5px;
+	color: var(--carto-ink-soft);
+}
+.lp-stall-now {
+	margin: 4px 0 0;
+	padding-top: 10px;
+	border-top: 1px dashed var(--carto-rule-strong);
+	font-size: 14.5px;
+}
+.lp-quote {
+	margin: 28px 0 0;
+	max-width: 52rem;
+	padding-inline-start: 16px;
+	border-inline-start: 3px solid var(--carto-amber);
+	font-family: var(--font-display);
+	font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+	line-height: 1.4;
+	font-style: italic;
+	color: var(--color-base-content);
 }
 
 /* ── Sections ───────────────────────────────────────────────────────────── */
@@ -546,8 +622,8 @@ h4 {
 	padding: 10px 14px;
 	max-width: 66ch;
 	font-size: 15px;
-	background: var(--carto-declared-soft);
-	border-inline-start: 3px solid var(--carto-declared);
+	background: var(--carto-amber-soft);
+	border-inline-start: 3px solid var(--carto-amber);
 	border-radius: 0 var(--r-sm) var(--r-sm) 0;
 }
 .lp-guide-grid {
@@ -654,14 +730,74 @@ h4 {
 	flex: 1;
 }
 
-/* ── Why it's different ─────────────────────────────────────────────────── */
-.lp-section .ui-feature-grid {
-	--ui-panel-radius: var(--r-lg);
+/* ── For approvers ──────────────────────────────────────────────────────── */
+.lp-approve {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 24px;
+	padding: 24px 20px;
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule-strong);
+	border-radius: var(--r-xl);
 }
-.lp-section .ui-feature-card {
-	border-top: 3px solid var(--_ui-feature-accent, var(--carto-accent));
+@media (min-width: 1000px) {
+	.lp-approve {
+		grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+		gap: 40px;
+		padding: 32px;
+	}
 }
-.lp-section .ui-feature-body p {
+.lp-three {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 12px;
+}
+@media (min-width: 640px) {
+	.lp-three {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+.lp-three li {
+	padding: 14px 16px;
+	background: var(--carto-ground);
+	border-top: 3px solid var(--carto-accent);
+	border-radius: var(--r-sm);
+	display: grid;
+	gap: 4px;
+	align-content: start;
+}
+.lp-three strong {
+	font-family: var(--font-display);
+	font-size: 18px;
+}
+.lp-three span {
+	font-size: 14.5px;
+	color: var(--carto-ink-soft);
+}
+.lp-tagline {
+	margin: 20px 0 0;
+	font-family: var(--font-display);
+	font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem);
+	line-height: 1.35;
+	max-width: 36ch;
+}
+.lp-approve-facts {
+	margin: 0;
+	display: grid;
+	gap: 10px;
+	font-size: 14.5px;
+}
+.lp-approve-facts div {
+	display: grid;
+	gap: 2px;
+}
+.lp-approve-facts dt {
+	font-weight: 600;
+}
+.lp-approve-facts dd {
 	margin: 0;
 	color: var(--carto-ink-soft);
 }

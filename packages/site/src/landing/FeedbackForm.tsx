@@ -160,7 +160,7 @@ export function FeedbackForm() {
                   onInput={(e) => setSummary(e.currentTarget.value)}
                   aria-invalid={errorOf("summary") ? "true" : undefined}
                   aria-describedby={described("summary") ?? "fb-summary-count"}
-                  placeholder="e.g. get_data said Melbourne rents don't exist quarterly"
+                  placeholder="e.g. It couldn't find rents for Darwin"
                 />
               </Field>
               <div class="lp-field-meta">

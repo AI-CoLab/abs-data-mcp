@@ -51,15 +51,15 @@ const ORIGIN = "https://abs-data-front-door.aicolab.workers.dev";
 
 /** The first 512 characters stand alone (ChatGPT reads only that much up front). */
 export const INSTRUCTIONS =
-  "ABS Data (observed): the Australian Bureau of Statistics' data, offering only tables and options confirmed to " +
-  "serve data. Flow: search_tables → describe_table → search_options (large dimensions such as geography) → " +
-  "get_data. A failed selection names the valid options; use them rather than guessing. Quote numbers only from " +
-  "get_data results, with provenance.runId. If the person wants to report a problem or an idea, use feedback_form " +
-  "(they review and send it); never call submit_feedback without their explicit OK.\n\n" +
+  "ABS Data: the Australian Bureau of Statistics' public data, fetched live. People describe what they care about, " +
+  "not which dataset: work out which tables bear on their question, then search_tables → describe_table → " +
+  "search_options (for long lists) → get_data. A failed selection names the valid options; use them, " +
+  "don't guess. Quote numbers only from get_data, say where they come from, and explain caveats in the person's " +
+  "terms. For feedback use feedback_form; never call submit_feedback without their OK.\n\n" +
   "More: Code Mode `search` runs code over the whole catalogue document and `execute` runs multi-series analysis " +
-  "in a sandbox. Resources: abs://guide (how to use this server), abs://findings (what ABS's metadata gets wrong), " +
-  "abs://table/{id}. Prompts: suburb_dossier, compare_capitals, explain_metadata_gap, report_issue. Small-area " +
-  "series are volatile; read multi-year totals, not single years.";
+  "in a sandbox. Resources: abs://guide (how to use this server), abs://table/{id}, abs://findings (how ABS's " +
+  "published metadata compares with its data). Prompts: suburb_dossier, compare_capitals, report_issue, " +
+  "explain_metadata_gap. Small-area series are volatile; read multi-year totals, not single years.";
 
 /** Every catalogue verb reads; get_data reaches ABS live, so it is open-world. */
 const READS: ToolAnnotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
@@ -118,7 +118,7 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext, opts: BuildOptio
   const server = new McpServer(
     {
       name: NAME,
-      title: "ABS Data (observed)",
+      title: "ABS Data",
       version: VERSION,
       websiteUrl: ORIGIN,
       icons: [{ src: `${ORIGIN}/icon.svg`, mimeType: "image/svg+xml", sizes: ["any"] }],
@@ -135,8 +135,9 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext, opts: BuildOptio
         "table names, topics and dimension names, and also option labels inside dimensions — a search for " +
         "'rent' finds CPI through its INDEX option 'Rents' and reports the match in matchedOptions. Census " +
         "tables published at several geography levels are collapsed to one result with familyGeographies " +
-        "listing the others (use the geography filter to pick one). Every result is confirmed to serve " +
-        "data — nothing here comes from documentation alone. Start here, then describe_table.",
+        "listing the others (use the geography filter to pick one). Every result has data. When the person " +
+        "describes a situation rather than a dataset, search for each thing it depends on (prices, wages, rents, " +
+        "population...). Start here, then describe_table.",
       inputSchema: searchTablesInputSchema,
       outputSchema: searchTablesOutputSchema,
       annotations: { ...READS, title: "Search ABS tables" },
@@ -149,7 +150,7 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext, opts: BuildOptio
     {
       title: "Describe a table",
       description:
-        "A table's dimensions in key order, its coverage dates, and its observed options. Dimensions with up to " +
+        "A table's dimensions in key order, its coverage dates, and its options. Dimensions with up to " +
         "64 options list them inline with labels; larger ones (geography, occupations) say how many and are " +
         "searchable with search_options.",
       inputSchema: describeTableInputSchema,

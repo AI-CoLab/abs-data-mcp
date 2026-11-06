@@ -250,8 +250,8 @@ export default {
       return json({
         service: "abs-data-front-door",
         description:
-          "The ABS Data API as it actually behaves. Every table and option offered is confirmed to serve data; " +
-          "every selection is verified live before fetching.",
+          "The Australian Bureau of Statistics' public data, for AI assistants and software. Every table and option " +
+          "offered has data, and every selection is checked live before it is fetched.",
         provenance: { runId: MANIFEST.runId, observedAt: MANIFEST.observedAt },
         corpus: MANIFEST.corpus,
         doors: {

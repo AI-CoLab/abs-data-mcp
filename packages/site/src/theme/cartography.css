@@ -1,7 +1,7 @@
 /* ── cartography — the front door's theme over @aicolab/ui-solid ─────────────
    The /catalogue artifact's survey-paper palette as ui-solid anchors: cool
-   neutrals biased toward the ink-blue accent, and the thesis's two hues —
-   amber for what ABS's metadata declares, teal for what was observed.
+   neutrals biased toward an ink-blue accent, with teal and amber as plain
+   secondary accents. The colours carry no meaning of their own.
 
    Anchors and ladders only, the way ui-solid's own themes are written: the
    resolver derives every surface, border and content role per scheme. Authored
@@ -13,10 +13,10 @@
 	--color-base-content: light-dark(#0f161c, #e8eef4);
 	/* Ink blue: links, actions, the selected tab. */
 	--color-primary: light-dark(#12457a, #6aa5dd);
-	/* Teal: what was observed — confirmed by retrieval. */
+	/* Teal: the second accent, and success. */
 	--color-secondary: light-dark(#0a6a5f, #45c3ae);
 	--color-success: light-dark(#0a6a5f, #45c3ae);
-	/* Amber: what ABS's metadata declares. */
+	/* Amber: the warm accent, and warning. */
 	--color-accent: light-dark(#9a6212, #d99f4d);
 	--color-warning: light-dark(#9a6212, #d99f4d);
 	--color-info: light-dark(#12457a, #6aa5dd);
@@ -28,8 +28,7 @@
 	--font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
 }
 
-/* The page's own tokens, named as the artifact names them, for the few
-   surfaces the components do not draw (the hero's survey grid, the key). */
+/* The page's own tokens, for the few surfaces the components do not draw. */
 .ui-theme.theme-cartography {
 	--carto-ground: light-dark(#f4f6f8, #0d1216);
 	--carto-sunk: light-dark(#e9edf1, #1b242b);
@@ -39,10 +38,10 @@
 	--carto-ink-faint: light-dark(#5f6c76, #8d9aa5);
 	--carto-accent: light-dark(#12457a, #6aa5dd);
 	--carto-accent-soft: light-dark(#e3ecf6, #16283a);
-	--carto-observed: light-dark(#0a6a5f, #45c3ae);
-	--carto-observed-soft: light-dark(#dcefeb, #102b28);
-	--carto-declared: light-dark(#9a6212, #d99f4d);
-	--carto-declared-soft: light-dark(#f6ecd9, #2e2415);
+	--carto-teal: light-dark(#0a6a5f, #45c3ae);
+	--carto-teal-soft: light-dark(#dcefeb, #102b28);
+	--carto-amber: light-dark(#9a6212, #d99f4d);
+	--carto-amber-soft: light-dark(#f6ecd9, #2e2415);
 }
 
 html.theme-cartography,

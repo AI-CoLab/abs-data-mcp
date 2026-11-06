@@ -1,26 +1,38 @@
-# ABS Data API — cartography and front door
+# ABS Data — Australian Bureau of Statistics data for your AI assistant
 
-This project measured what the Australian Bureau of Statistics Data API actually serves — every dataflow, by retrieval —
-and exposes the result as a typed front door: an MCP server and an HTTP API
-that only ever offer what exists.
+Ask the question you actually have. Add one web address to Claude, ChatGPT or
+Copilot, say what you care about, and your assistant finds the right ABS data,
+fetches it live, and explains it — with its caveats. Free, anonymous and
+read-only.
 
-![The ABS Data API cartography: unmasking the 4.21% reality — a comic-style map of the findings and the front door](docs/cartography-comic.png)
+**Start here: <https://abs-data-front-door.aicolab.workers.dev>** — setup guides
+for each AI tool, things to ask, and a feedback form.
+
+An independent, unofficial connector — not an ABS product, and not endorsed by
+the Australian Bureau of Statistics. Data: ABS, CC BY 4.0.
 
 | | |
 |---|---|
 | Front door — setup guides for Claude, ChatGPT, Copilot and developer tools; feedback form | <https://abs-data-front-door.aicolab.workers.dev> |
-| Add to claude.ai / any MCP client as a connector | `https://abs-data-front-door.aicolab.workers.dev/mcp` (registry name `io.github.AI-CoLab/abs-data`) |
+| Add to claude.ai / any MCP client as a connector | `https://abs-data-front-door.aicolab.workers.dev/mcp` (registry name `io.github.SamJB123/abs-data`) |
 | MCP (2026-07-28 stateless; 2025 revisions served too) — 4 fixed verbs, Code Mode `search`/`execute`, `feedback_form`/`submit_feedback`, MCP Apps views (chart, feedback form), resources, prompts, completion | `https://abs-data-front-door.aicolab.workers.dev/mcp` |
 | Feedback from the web form (the same operation as `submit_feedback`) | `POST https://abs-data-front-door.aicolab.workers.dev/api/feedback` |
 | RPC door (Cap'n Web; what `@abs/sdk` speaks — HTTP batch or WebSocket) | `https://abs-data-front-door.aicolab.workers.dev/rpc` |
 | HTTP API | `https://abs-data-front-door.aicolab.workers.dev/api/tables` |
 | Scalar reference | <https://abs-data-front-door.aicolab.workers.dev/api/docs> |
-| Corrected OpenAPI | <https://abs-data-front-door.aicolab.workers.dev/api/openapi.json> |
+| OpenAPI | <https://abs-data-front-door.aicolab.workers.dev/api/openapi.json> |
 | The menu as one document | <https://abs-data-front-door.aicolab.workers.dev/api/catalogue.json> |
 | Live browsable catalogue | <https://abs-data-front-door.aicolab.workers.dev/catalogue> |
 | Static snapshot (claude.ai artifact) | <https://claude.ai/code/artifact/d0635dee-5cce-40dd-bfa2-7ab7dd03e5bd> |
 
-## What was found
+## How it was built
+
+Before offering anything, this project measured what the ABS Data API actually
+serves — every dataflow, by retrieval — so the connector only ever offers tables
+and options that have data, and a selection that doesn't exist comes back with
+the ones that do.
+
+![The ABS Data API cartography: unmasking the 4.21% reality — a comic-style map of the findings and the front door](docs/cartography-comic.png)
 
 - **621,536,714 series** exist across 1,227 dataflows. ABS's metadata implies
   14,761,557,818 — a density of **4.21%**, overstated **23.8×**.

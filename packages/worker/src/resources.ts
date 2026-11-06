@@ -25,15 +25,20 @@ import { OPENAPI_INFO } from "./http.ts";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const STATIC_HINT = { ttlMs: DAY_MS, cacheScope: "public" as const };
 
-export const GUIDE_MD = `# Using the ABS Data front door
+export const GUIDE_MD = `# Using ABS Data
 
-This server exposes the Australian Bureau of Statistics Data API *as it actually
-behaves*: every table and option offered here was confirmed to serve data by
-retrieval (${MANIFEST.corpus.seriesConfirmed.toLocaleString("en-AU")} series across
-${MANIFEST.corpus.tables} tables, observed ${MANIFEST.observedAt}). ABS's own metadata
-implies ${MANIFEST.corpus.seriesImpliedByMetadata.toLocaleString("en-AU")} — only
-${((MANIFEST.corpus.density ?? 0) * 100).toFixed(2)}% exist. Nothing here comes from
-documentation alone.
+This server gives you the Australian Bureau of Statistics' public data, fetched live:
+${MANIFEST.corpus.tables.toLocaleString("en-AU")} tables, and every table and option
+offered here has data. The data is ABS's, licensed CC BY 4.0.
+
+## Working from what the person cares about
+
+People rarely name a dataset. They say who they are and what they are trying to
+decide ("I'm a financial counsellor; are working families going backwards?"). Work
+out what the question depends on — prices, wages, rents, population, a place, a
+period — search for each, fetch what bears on it, and answer in their terms: what
+the numbers show, where each one comes from, and what they should be careful not to
+over-claim. The words they used to ask should shape the answer as well as the search.
 
 ## The four verbs
 
@@ -43,7 +48,7 @@ documentation alone.
    in \`matchedOptions\`. Census tables published at several geography levels are
    collapsed to one result; \`familyGeographies\` lists the rest.
 2. **describe_table** — the key structure (dimensions in order), coverage dates, and
-   observed options. Dimensions with up to 64 options list them inline; larger ones
+   options. Dimensions with up to 64 options list them inline; larger ones
    (geography, occupations, 161 CPI indices) give a count — use search_options.
 3. **search_options** — find option codes by label inside one dimension of one table.
    Suburb names, industries, price indices.
@@ -87,7 +92,7 @@ export function registerResources(server: McpServer, catalogue: Catalogue): void
   server.registerResource(
     "findings",
     "abs://findings",
-    { title: "What ABS's metadata gets wrong", description: "The measured gap between declared and observed availability, and endpoint conformance.", mimeType: "text/markdown", cacheHint: STATIC_HINT },
+    { title: "How ABS's metadata compares with its data", description: "For technical readers: how much of what ABS's published metadata implies actually has data, and how the API's endpoints behave.", mimeType: "text/markdown", cacheHint: STATIC_HINT },
     async (uri) => ({ contents: [{ uri: uri.href, mimeType: "text/markdown", text: FINDINGS_MD }] }),
   );
 
@@ -117,7 +122,7 @@ export function registerResources(server: McpServer, catalogue: Catalogue): void
   server.registerResource(
     "openapi",
     "abs://openapi",
-    { title: "Corrected OpenAPI 3.1 document", description: "The HTTP door's specification, generated from the same observed contract.", mimeType: "application/json", cacheHint: STATIC_HINT },
+    { title: "OpenAPI 3.1 document", description: "The HTTP API's specification, generated from the same contract as these tools.", mimeType: "application/json", cacheHint: STATIC_HINT },
     async (uri) => {
       if (!openapiCache) {
         const generator = new OpenAPIGenerator({ schemaConverters: [new ZodToJsonSchemaConverter()] });
@@ -133,7 +138,7 @@ export function registerResources(server: McpServer, catalogue: Catalogue): void
   server.registerResource(
     "table",
     new ResourceTemplate("abs://table/{id}", { list: undefined, complete: { id: completeTableId } }),
-    { title: "A table's description", description: "Key structure, coverage and observed options for one table — the same as describe_table.", mimeType: "application/json" },
+    { title: "A table's description", description: "Key structure, coverage and options for one table — the same as describe_table.", mimeType: "application/json" },
     async (uri, variables) => {
       const id = String(variables["id"] ?? "");
       const described = await catalogue.describeTable(id);
