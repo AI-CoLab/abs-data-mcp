@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>View harness</title>
+    <style>
+      body { font: 14px/1.5 system-ui, sans-serif; margin: 16px; background: #eef1f4; color: #111; }
+      body.dark { background: #0d1216; color: #e8eef4; }
+      .bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+      iframe { width: 100%; max-width: 760px; border: 1px solid #b9c4cd; border-radius: 10px; background: transparent; display: block; }
+      #log { font: 12px/1.4 ui-monospace, monospace; white-space: pre-wrap; max-width: 760px; margin-top: 12px; opacity: 0.75; }
+    </style>
+  </head>
+  <body>
+    <!-- Dev only (not in the build): plays the MCP Apps host for the two views,
+         against the local Worker's real tool results. `pnpm dev`, then /harness.html. -->
+    <div class="bar">
+      <button data-run="data-one">get_data: one series</button>
+      <button data-run="data-many">get_data: capitals</button>
+      <button data-run="feedback">feedback_form</button>
+      <label><input type="checkbox" id="dark" /> dark host</label>
+      <label><input type="checkbox" id="nocalls" /> host without serverTools</label>
+    </div>
+    <iframe id="frame" title="MCP App view" sandbox="allow-scripts allow-same-origin allow-forms" height="200"></iframe>
+    <div id="log"></div>
+    <script type="module" src="/src/harness/main.ts"></script>
+  </body>
+</html>

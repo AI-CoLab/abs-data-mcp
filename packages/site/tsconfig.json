@@ -1,0 +1,7 @@
+{
+  "extends": "@aicolab/tsconfig/solid",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "vite.views.config.ts"]
+}

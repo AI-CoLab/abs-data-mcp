@@ -1,0 +1,14 @@
+{
+	"name": "@aicolab/tsconfig",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Copy of aicolab-portal's tooling/tsconfig, for the ui-solid and solid submodules (DESIGN.md decision 32). Delete when the front door moves into the portal.",
+	"exports": {
+		"./base": "./base.json",
+		"./worker": "./worker.json",
+		"./react": "./react.json",
+		"./solid": "./solid.json"
+	},
+	"files": ["base.json", "worker.json", "react.json", "solid.json"]
+}

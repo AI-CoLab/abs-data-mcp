@@ -22,6 +22,13 @@
       "when": 1788935842054,
       "tag": "0002_graceful_lord_tyger",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1793951840114,
+      "tag": "0003_public_micromacro",
+      "breakpoints": true
     }
   ]
 }

@@ -9,3 +9,4 @@ export * from "./reference.ts";
 export * from "./declared.ts";
 export * from "./observed.ts";
 export * from "./derived.ts";
+export * from "./feedback.ts";

@@ -40,6 +40,21 @@ name = "EXECUTE"
 namespace_id = "1003"
 simple = { limit = 20, period = 60 }
 
+# Feedback writes, web form and submit_feedback (decision 33). Daily caps live in D1.
+[[ratelimits]]
+name = "FEEDBACK"
+namespace_id = "1004"
+simple = { limit = 5, period = 60 }
+
+# The pages (packages/site, built by `pnpm build:site`): the landing page, /admin,
+# their hashed assets. The Worker runs first for every request and serves pages
+# only where it chooses (index.ts), so /mcp, /api and the rest never reach here.
+# Secrets, set once with `wrangler secret put`: FEEDBACK_ADMIN_TOKEN, FEEDBACK_SALT.
+[assets]
+directory = "../site/dist/pages"
+binding = "ASSETS"
+run_worker_first = true
+
 # Daily refresh check on a rotating seventh of the flows (full sweep weekly):
 # dataflow listing diff plus live-vs-observed marginals. 20:00 UTC = 06:00 AEST.
 [triggers]

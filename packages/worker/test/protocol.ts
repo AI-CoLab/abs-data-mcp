@@ -39,16 +39,24 @@ async function rpc(method: string, params: Record<string, unknown> = {}): Promis
         "io.modelcontextprotocol/protocolVersion": PROTOCOL_VERSION,
         // Declare form elicitation so the server may answer with input_required
         // (MRTR). A client without it must get a typed error instead — tested below.
-        "io.modelcontextprotocol/clientCapabilities": (params["_noElicitation"] ? {} : { elicitation: { form: {} } }),
+        // `_ui` also declares the MCP Apps extension, so tools point at their views.
+        "io.modelcontextprotocol/clientCapabilities": {
+          ...(params["_noElicitation"] ? {} : { elicitation: { form: {} } }),
+          ...(params["_ui"] ? { extensions: { "io.modelcontextprotocol/ui": { mimeTypes: ["text/html;profile=mcp-app"] } } } : {}),
+        },
         "io.modelcontextprotocol/clientInfo": { name: "abs-protocol-test", version: "0" },
       },
     },
   };
+  delete (body.params as Record<string, unknown>)["_noElicitation"];
+  delete (body.params as Record<string, unknown>)["_ui"];
   const res = await fetch(MCP_URL, {
     method: "POST",
     headers: {
       "content-type": "application/json",
       accept: "application/json, text/event-stream",
+      // Required beside the body envelope in 2026-07-28; SDK 2.4 refuses a request without it.
+      "MCP-Protocol-Version": PROTOCOL_VERSION,
       "Mcp-Method": method,
       // Header-based routing (2026-07-28): the named entity travels in Mcp-Name —
       // a tool or prompt name, or a resource URI — and must agree with the body.
@@ -88,10 +96,23 @@ process.stdout.write("tools/list\n");
 const list = await rpc("tools/list");
 const names = (list.tools as Array<{ name: string }>).map((t) => t.name).sort();
 check(["describe_table", "get_data", "search_options", "search_tables"].every((n) => names.includes(n)), `the four fixed verbs are present (${names.join(", ")})`);
-check(names.length === 6 && names.includes("search") && names.includes("execute"), "plus the two Code Mode tools, nothing else");
+check(names.includes("search") && names.includes("execute"), "plus the two Code Mode tools");
+check(names.includes("feedback_form") && names.includes("submit_feedback"), "plus the two feedback tools");
+check(names.length === 8, `and nothing else (${names.length} tools)`);
 check(typeof list.ttlMs === "number" && list.ttlMs > 0, `cacheable: ttlMs=${list.ttlMs}`);
 check(list.cacheScope === "public", `cacheable: cacheScope=${list.cacheScope}`);
 check(list.tools.every((t: any) => t.inputSchema && t.outputSchema), "every tool has input and output schemas");
+// The Claude and ChatGPT directories require both hints on every tool; hosts use them to decide what to confirm.
+check(
+  list.tools.every((t: any) => typeof t.annotations?.readOnlyHint === "boolean" && typeof t.annotations?.destructiveHint === "boolean" && t.title),
+  "every tool has a title and explicit readOnlyHint and destructiveHint",
+);
+check(
+  list.tools.filter((t: any) => t.annotations?.readOnlyHint === false).map((t: any) => t.name).join() === "submit_feedback",
+  "submit_feedback is the only write, so it is the only tool a host asks about",
+);
+check(!list.tools.some((t: any) => t._meta?.ui), "no view pointers for a client that did not declare the UI extension");
+check(typeof discover.instructions === "string" && discover.instructions.includes("feedback_form") || JSON.stringify(discover).includes("feedback_form"), "server instructions are advertised");
 
 // -------------------------------------------------------------- search
 process.stdout.write("search_tables\n");
@@ -219,7 +240,7 @@ check(/MEASURE\.INDEX\.TSEST\.REGION\.FREQ/.test(tableDoc.contents?.[0]?.text ??
 process.stdout.write("prompts\n");
 const prompts = await rpc("prompts/list");
 const promptNames = (prompts.prompts as Array<{ name: string }>).map((p) => p.name).sort();
-check(JSON.stringify(promptNames) === JSON.stringify(["compare_capitals", "explain_metadata_gap", "suburb_dossier"]), `three packaged workflows (${promptNames.join(", ")})`);
+check(JSON.stringify(promptNames) === JSON.stringify(["compare_capitals", "explain_metadata_gap", "report_issue", "suburb_dossier"]), `three packaged workflows plus report_issue (${promptNames.join(", ")})`);
 const dossier = await rpc("prompts/get", { name: "suburb_dossier", arguments: { place: "Fitzroy" } });
 check(/Fitzroy/.test(dossier.messages?.[0]?.content?.text ?? "") && /search_options/.test(dossier.messages?.[0]?.content?.text ?? ""), "suburb_dossier renders with the place and the tool plan");
 
@@ -292,6 +313,92 @@ const RPC_URL = MCP_URL.replace(/\/mcp$/, "/rpc");
   const first = await abs.searchTables({ query: "labour force", limit: 2 });
   const second = await abs.searchOptions({ table: "CPI", dimension: "REGION", query: "Sydney" });
   check(first.results.length > 0 && second.options.some((o) => o.code === "1"), `WebSocket session serves consecutive calls (${first.results[0]?.id}, REGION ${second.options[0]?.code})`);
+}
+
+// ------------------------------------------------- MCP Apps views (decision 35)
+process.stdout.write("MCP Apps views\n");
+{
+  const uiList = await rpc("tools/list", { _ui: true });
+  const byName = Object.fromEntries((uiList.tools as any[]).map((t) => [t.name, t]));
+  const formUri: string | undefined = byName["feedback_form"]?._meta?.ui?.resourceUri;
+  const dataUri: string | undefined = byName["get_data"]?._meta?.ui?.resourceUri;
+  check(formUri?.startsWith("ui://abs-data-feedback/"), `feedback_form points at its view (${formUri})`);
+  check(dataUri?.startsWith("ui://abs-data-chart/"), `get_data points at the chart view (${dataUri})`);
+  if (formUri) {
+    const read = await rpc("resources/read", { uri: formUri, _ui: true });
+    const content = read.contents?.[0];
+    check(content?.mimeType === "text/html;profile=mcp-app" && content.text.includes("<html"), `the view resource is an MCP App document (${content?.mimeType}, ${content?.text?.length} chars)`);
+  }
+}
+
+// ------------------------------------------------------ feedback (decision 33)
+process.stdout.write("feedback\n");
+{
+  const form = await callTool("feedback_form", { kind: "bug", summary: "Protocol test draft", table: "CPI" });
+  check(form.structuredContent?.draft?.summary === "Protocol test draft" && typeof form.structuredContent?.next === "string", "feedback_form hands back the draft and what to do next, sending nothing");
+
+  const sent = await callTool("submit_feedback", { kind: "idea", summary: "Protocol test submission", details: "Sent by test/protocol.ts", table: "CPI", tool: "get_data" });
+  const id: string | undefined = sent.structuredContent?.id;
+  check(/^FB-[0-9A-Z]{6}$/.test(id ?? ""), `submit_feedback stores it and answers a reference (${id})`);
+
+  const invalid = await callTool("submit_feedback", { kind: "idea", summary: "x" }).catch((e: Error) => ({ protocolError: e.message }));
+  check((invalid as any).isError === true || "protocolError" in (invalid as any), "a too-short summary is refused");
+
+  const web = await fetch(`${API_URL}/feedback`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ kind: "docs", about: "connector", summary: "Protocol test via the web form" }),
+  });
+  const webOut = await web.json() as any;
+  check(web.status === 201 && /^FB-/.test(webOut.id), `POST /api/feedback stores web feedback (${web.status} ${webOut.id})`);
+
+  const bad = await fetch(`${API_URL}/feedback`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind: "nope" }) });
+  const badOut = await bad.json() as any;
+  check(bad.status === 400 && Array.isArray(badOut.issues) && badOut.issues.length > 0, `invalid web feedback is a 400 with the issues (${badOut.issues?.map((i: any) => i.path).join(", ")})`);
+
+  const trap = await fetch(`${API_URL}/feedback`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ kind: "other", summary: "Spam spam spam", website: "https://spam.example" }),
+  });
+  check(trap.status === 201, `a filled spam trap looks accepted (${trap.status}) and is not stored`);
+
+  const preflight = await fetch(`${API_URL}/feedback`, { method: "OPTIONS" });
+  check(preflight.status === 204 && preflight.headers.get("access-control-allow-origin") === "*", "the feedback endpoint answers CORS preflight for the in-chat view");
+
+  const admin = await fetch(`${API_URL}/admin/feedback`);
+  check(admin.status === 401 || admin.status === 503, `the inbox API refuses without a token (${admin.status})`);
+  const token = process.env["FEEDBACK_ADMIN_TOKEN"];
+  if (token) {
+    const inbox = await fetch(`${API_URL}/admin/feedback?limit=10`, { headers: { authorization: `Bearer ${token}` } });
+    const inboxOut = await inbox.json() as any;
+    check(inbox.status === 200 && inboxOut.items.some((r: any) => r.id === id), `the inbox lists the submission (${inboxOut.total} total)`);
+    check(!inboxOut.items.some((r: any) => r.summary === "Spam spam spam"), "the spam-trap submission was not stored");
+    const patched = await fetch(`${API_URL}/admin/feedback/${id}`, {
+      method: "PATCH",
+      headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+      body: JSON.stringify({ status: "closed", adminNote: "protocol test" }),
+    });
+    const patchedOut = await patched.json() as any;
+    check(patched.status === 200 && patchedOut.status === "closed", "the inbox updates a submission's status");
+  }
+}
+
+// --------------------------------------------- completion, prompts, the page
+process.stdout.write("completion and the landing page\n");
+{
+  const done = await rpc("completion/complete", { ref: { type: "ref/resource", uri: "abs://table/{id}" }, argument: { name: "id", value: "CP" } });
+  check(done.completion?.values?.includes("CPI"), `table ids complete from a prefix (${done.completion?.values?.slice(0, 4).join(", ")})`);
+  const prompts = await rpc("prompts/list");
+  check(prompts.prompts.some((p: any) => p.name === "report_issue"), "the report_issue prompt is listed");
+
+  const root = MCP_URL.replace(/\/mcp$/, "/");
+  const page = await fetch(root, { headers: { accept: "text/html" } });
+  const pageText = await page.text();
+  check(page.status === 200 && (page.headers.get("content-type") ?? "").includes("text/html") && pageText.includes('id="app"'), `a browser at / gets the landing page (${page.status})`);
+  const machine = await fetch(root, { headers: { accept: "application/json" } });
+  const machineOut = await machine.json() as any;
+  check(machineOut.service === "abs-data-front-door" && machineOut.doors?.feedback, "anything else at / still gets the JSON service description");
 }
 
 // ------------------------------------------------------------------ done

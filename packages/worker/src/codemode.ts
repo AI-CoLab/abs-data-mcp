@@ -210,6 +210,8 @@ export function registerCodeMode(server: McpServer, env: Env, ctx: ExecutionCont
         CATALOGUE_INTERFACE,
       inputSchema: z.object({ code: z.string().min(1).max(BUDGET.maxCodeChars).describe("JavaScript. `catalogue` is in scope. Must return a value.") }),
       outputSchema: sandboxOutputSchema,
+      // Reads the catalogue in a no-network sandbox: changes nothing, reaches nothing.
+      annotations: { title: "Search the catalogue by writing code", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     },
     async ({ code }) => {
       if (!loader) return unavailable();
@@ -235,6 +237,8 @@ export function registerCodeMode(server: McpServer, env: Env, ctx: ExecutionCont
         ABS_INTERFACE,
       inputSchema: z.object({ code: z.string().min(1).max(BUDGET.maxCodeChars).describe("JavaScript. `abs` is in scope. Must return a value.") }),
       outputSchema: sandboxOutputSchema,
+      // Reads live ABS data through the validated client; writes nothing anywhere.
+      annotations: { title: "Fetch and analyse data by writing code", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
     async ({ code }) => {
       if (!loader) return unavailable();

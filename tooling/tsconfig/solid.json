@@ -1,0 +1,19 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"display": "Solid + Vite",
+	"extends": "./base.json",
+	"compilerOptions": {
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"jsx": "preserve",
+		"jsxImportSource": "@solidjs/web",
+		"types": ["vite/client"],
+		"allowImportingTsExtensions": true,
+		"noUncheckedSideEffectImports": true,
+		// Workspace packages here ship RAW .ts (@aicolab/ui-solid, @aicolab/solid);
+		// tsc checks that source under the consumer's options, so these three stay
+		// off for parity with the portal's Solid apps.
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noUncheckedIndexedAccess": false
+	}
+}

@@ -555,6 +555,88 @@ hundreds-of-GB path deferred in decision 1. Revisit when the rest works.
     tools/call, MRTR paths, cache fields) plus real use from a Claude Code
     session connected to the running server.
 
+### Phase 3 decisions (2026-11-06, the front page and feedback)
+
+The connector is getting attention, so it needs a front page that helps people
+connect it from the AI tool they actually use, and a way to tell the
+maintainers what to improve (suggested by ABS). The intent is to move the front
+door onto `@aicolab/app-kit` later; this phase does not take that dependency,
+but is written so the move is an import swap rather than a rewrite.
+
+32. **Pages from `@aicolab/ui-solid`, without the portal.** `packages/site`
+    (Solid 2 + ui-solid, Vite) builds the landing page (`/`), the feedback inbox
+    (`/admin`) and the MCP App views; the Worker serves the pages as static
+    assets (`[assets]`, `run_worker_first`) and imports each view as text.
+    `ui-solid` and `solid` are **git submodules** of their public repos
+    (`packages/ui-solid`, `packages/solid`), pinned to the portal's commits;
+    the npm copies are two months stale (Solid rc.3 vs rc.18). Their
+    `catalog:` and `workspace:^` specifiers are answered by a catalog and
+    overrides copied from the portal's `pnpm-workspace.yaml` and a copy of
+    `@aicolab/tsconfig` under `tooling/` — all marked to be deleted, not
+    merged, when the front door moves into the portal. App-kit itself is not
+    taken: it is unpublished and its closure (room-service, better-auth,
+    kolo, cloudflare) is private. `/` content-negotiates: a browser gets the
+    page, anything else the JSON service description as before. Look: the
+    /catalogue artifact's cartography palette as a ui-solid theme
+    (`src/theme/cartography.css`). The guides are text steps with one-click
+    links where they exist (Claude's `?modal=add-custom-connector` deep link,
+    personal and Owner; VS Code; Cursor) and an "ask your admin" message for
+    Claude Team/Enterprise, ChatGPT workspaces and Microsoft 365; each step
+    carries an optional screenshot slot, filled later. Facts come from the
+    vendors' docs as of 2026-11-06; where they conflict (ChatGPT plan
+    availability, the Copilot licence) the page says so.
+33. **Feedback: one operation, three ways in.** `submit_feedback` is a write
+    (`readOnlyHint: false`, `destructiveHint: false`), so hosts ask before it
+    runs; it is reached by the MCP tool, the in-chat view's Send button
+    (through the host) and the web form (`POST /api/feedback`). One schema
+    (`@abs/contract/feedback`), flat and `$ref`-free for Copilot Studio.
+    `feedback_form` is its read-only partner: it opens the view prefilled
+    with the model's draft and sends nothing, so the person edits and sends
+    it themselves; on a host without views its answer tells the model to
+    confirm in chat first. `about: "abs"` marks a report about ABS's own data
+    or API, and `shareWithAbs` records consent to pass it on. Stored in D1
+    (`feedback`, migration 0003). No IP address is stored, only a salted
+    SHA-256 that changes every UTC day (a rate key, useless for tracking).
+    Abuse made cheap: an edge tier (FEEDBACK, 5/min per address), 20 per
+    sender per day and 1,000 in total per day in D1, length caps, and a spam
+    trap on the web route only (so an assistant can never trip it). Read by
+    the maintainers at `/admin` over `/api/admin/*` with a bearer token
+    (`FEEDBACK_ADMIN_TOKEN`); unset, the API refuses rather than opens.
+34. **New operations are written in app-kit's shape.** `src/ops/define.ts`
+    mirrors app-kit's `./api/define` — `Operation`, `operationsFor`,
+    `defineMcpAppView`, `READ_ONLY`, `NotFound`, `Refused`, the handler's
+    `(input, ctx, call)` — and `src/ops/mcp.ts` / `src/ops/rest.ts` are small
+    projections standing where `registerMcpTools` and `restRouter` will.
+    The views are written against app-kit's `ViewHost` seam and mounted by a
+    `mountMcpAppView` with app-kit's signature. The four original verbs and
+    Code Mode stay where they are (oRPC for HTTP, decision 27) and join the
+    catalogue at the move. Migration map: swap `./ops/define` for
+    `@aicolab/app-kit/api`, add a capability class per standing (public;
+    maintainer, replacing the shared admin token with platform sign-in),
+    replace `./ops/rest` with `restRouter` and oRPC with it, swap the views'
+    shell import, delete the copied catalog and `tooling/tsconfig`.
+35. **MCP modernised to what exists now.** SDK 2.0.0 → 2.4.0 (and zod
+    4.6.5, one copy). Every tool has a title and explicit `readOnlyHint` /
+    `destructiveHint` / `idempotentHint` / `openWorldHint` (the Claude and
+    ChatGPT directories require them; hosts use them to decide what to
+    confirm — `get_data` and `execute` are open-world reads, `submit_feedback`
+    the only write). Server `title`, `icons`, `websiteUrl` and
+    `instructions` (first 512 characters self-contained, for ChatGPT).
+    `describe_table` and `get_data` answer with a resource link to
+    `abs://table/{id}`; table ids complete (`completion/complete`) on that
+    template and on `explain_metadata_gap`'s argument; a `report_issue`
+    prompt. **MCP Apps** (`io.modelcontextprotocol/ui`): `get_data`'s
+    result renders as a chart and a table (one axis; ≤8 series in the
+    validated categorical order; legend and end labels; crosshair by
+    pointer or arrow keys; the table one click away; series named from
+    `describe_table` through the host); `feedback_form` renders the
+    feedback form. View URIs carry a hash of the document. Views are
+    pointed at unless a client declared capabilities without the
+    extension. SDK 2.4 enforces that a 2026-07-28 request carries the
+    `MCP-Protocol-Version` header beside its body envelope, as the
+    revision requires; 2025-revision clients (`initialize`) are served
+    unchanged.
+
 ## 4. Destination
 
 The agreed end-state (2026-09-08): one contract generated from the observed
@@ -654,3 +736,23 @@ Remaining:
     to be sent by the user to api.data@abs.gov.au); official MCP registry
     listing as `io.github.AI-CoLab/abs-data` (`server.json`, validated) —
     publish requires an interactive GitHub login by an org owner.
+
+18. ✔ Front page, feedback and MCP modernisation (decisions 32–35), live
+    2026-11-06 (version 4b30cf9a). Migration 0003 applied to the remote D1;
+    `FEEDBACK_ADMIN_TOKEN` and `FEEDBACK_SALT` set as secrets (generated,
+    never displayed; the token is kept in the maintainer's login Keychain as
+    `abs-data-front-door-admin-token`). Protocol suite 79/79 locally and
+    against production, including the feedback, view, completion and
+    landing-page checks (its two test submissions closed in the inbox); both
+    views exercised in a dev-only MCP Apps host (`packages/site/harness.html`)
+    in light and dark.
+
+Next:
+
+19. Screenshots for each guide's steps (the slots exist); a directory
+    listing in Claude's Connectors Directory and ChatGPT's (both accept
+    unauthenticated servers; both want a privacy policy page, and a custom
+    domain would help the "domain matches the service" check); slimmer
+    views (each is ~640KB, mostly ui-solid's full stylesheet and the
+    ext-apps client); zod-free feedback constants so the landing bundle
+    drops zod; the move onto app-kit (decision 34's map).

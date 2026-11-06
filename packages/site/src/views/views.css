@@ -1,0 +1,95 @@
+/* Shared by the in-chat views: a compact, host-friendly frame. The host's own
+   style variables (applied to :root by the shell) win over the theme's fonts,
+   so a view reads as part of the conversation rather than a pasted page. */
+
+/* An opaque surface, not transparent: if a host's page and the view's scheme ever
+   disagree, the text still sits on its own background and stays legible. */
+html.theme-cartography,
+html.theme-cartography body {
+	background: var(--color-base-100);
+}
+
+.v-root {
+	font: 400 14px/1.5 var(--font-sans);
+	color: var(--color-base-content);
+	padding: 14px 16px 16px;
+	display: grid;
+	gap: 12px;
+	max-width: 760px;
+}
+
+.v-head {
+	display: grid;
+	gap: 2px;
+}
+
+.v-eyebrow {
+	font: 500 11px/1.3 var(--font-data);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--carto-ink-faint);
+}
+
+.v-title {
+	font: 600 17px/1.3 var(--font-display);
+	margin: 0;
+	text-wrap: balance;
+}
+
+.v-sub {
+	color: var(--carto-ink-soft);
+	margin: 0;
+	font-size: 13px;
+}
+
+.v-mono {
+	font-family: var(--font-data);
+	font-size: 12px;
+}
+
+.v-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+}
+
+.v-note {
+	font-size: 12.5px;
+	color: var(--carto-ink-soft);
+	margin: 0;
+}
+
+.v-error {
+	border: 1px solid color-mix(in oklab, var(--color-error) 45%, transparent);
+	background: color-mix(in oklab, var(--color-error) 8%, transparent);
+	border-radius: 6px;
+	padding: 8px 10px;
+	font-size: 13px;
+}
+
+.v-ok {
+	border: 1px solid color-mix(in oklab, var(--carto-observed) 45%, transparent);
+	background: var(--carto-observed-soft);
+	border-radius: 6px;
+	padding: 10px 12px;
+	display: grid;
+	gap: 4px;
+}
+
+.v-ok strong {
+	font-family: var(--font-data);
+}
+
+.v-waiting {
+	color: var(--carto-ink-faint);
+	font-size: 13px;
+	padding: 8px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	* {
+		transition: none !important;
+		animation: none !important;
+	}
+}

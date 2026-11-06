@@ -8,9 +8,10 @@ that only ever offer what exists.
 
 | | |
 |---|---|
-| Front door | <https://abs-data-front-door.aicolab.workers.dev> |
+| Front door — setup guides for Claude, ChatGPT, Copilot and developer tools; feedback form | <https://abs-data-front-door.aicolab.workers.dev> |
 | Add to claude.ai / any MCP client as a connector | `https://abs-data-front-door.aicolab.workers.dev/mcp` (registry name `io.github.AI-CoLab/abs-data`) |
-| MCP (2026-07-28, stateless) — 4 fixed verbs + Code Mode `search`/`execute`, resources, prompts | `https://abs-data-front-door.aicolab.workers.dev/mcp` |
+| MCP (2026-07-28 stateless; 2025 revisions served too) — 4 fixed verbs, Code Mode `search`/`execute`, `feedback_form`/`submit_feedback`, MCP Apps views (chart, feedback form), resources, prompts, completion | `https://abs-data-front-door.aicolab.workers.dev/mcp` |
+| Feedback from the web form (the same operation as `submit_feedback`) | `POST https://abs-data-front-door.aicolab.workers.dev/api/feedback` |
 | RPC door (Cap'n Web; what `@abs/sdk` speaks — HTTP batch or WebSocket) | `https://abs-data-front-door.aicolab.workers.dev/rpc` |
 | HTTP API | `https://abs-data-front-door.aicolab.workers.dev/api/tables` |
 | Scalar reference | <https://abs-data-front-door.aicolab.workers.dev/api/docs> |
@@ -43,8 +44,12 @@ packages/schema      Drizzle schema (declared vs observed, never joined), shared
 packages/crawler     structural crawl, observed probe, conformance suite, sizing
 packages/catalogue   delta report, sparsity analysis, contract generator, OpenAPI emitter, artifact
 packages/contract    the corrected contract: stable Zod verbs + generated tables/options (per crawl)
-packages/worker      the front door: MCP door (SDK v2) + HTTP door (oRPC + Scalar) + RPC door (Cap'n Web) on one Worker
+packages/worker      the front door: MCP door (SDK v2) + HTTP door (oRPC + Scalar) + RPC door (Cap'n Web) on one Worker;
+                     src/ops/ holds new operations in @aicolab/app-kit's shape (DESIGN.md decision 34)
+packages/site        the pages (landing, /admin) and the MCP App views — Solid 2 + @aicolab/ui-solid, built by Vite
+packages/ui-solid    git submodule: the AI CoLab component system (public); packages/solid is its Solid helpers
 packages/sdk         @abs/sdk — typed TypeScript client over the RPC door (connect(), invalidSelectionFromError())
+tooling/tsconfig     copy of the portal's shared tsconfigs, for the submodules (deleted at the move to app-kit)
 reports/             delta.md/json, sparsity.md/json, openapi.json, abs-report-draft.md
 data/                local SQLite catalogue (~400GB), raw archive, D1 import SQL — not committed
 ```
@@ -52,6 +57,7 @@ data/                local SQLite catalogue (~400GB), raw archive, D1 import SQL
 ## Running it
 
 ```sh
+git submodule update --init           # packages/ui-solid and packages/solid
 pnpm install
 pnpm db:migrate                       # local SQLite at data/abs-catalogue.sqlite
 
@@ -63,14 +69,26 @@ pnpm --filter @abs/catalogue emit:openapi
 
 cd packages/worker
 npx wrangler d1 execute abs-catalogue --local --file=../../data/d1/00-schema.sql   # then each data file
-npx wrangler dev
-ABS_MCP_URL=http://localhost:8787/mcp npx tsx test/protocol.ts                     # ~50 checks, all doors
+npx wrangler d1 execute abs-catalogue --local --file=../schema/migrations/0003_public_micromacro.sql  # feedback table
+printf 'FEEDBACK_ADMIN_TOKEN=local-dev-token\nFEEDBACK_SALT=local-dev-salt\n' > .dev.vars  # gitignored
+pnpm dev                                                                           # builds packages/site, then wrangler dev
+ABS_MCP_URL=http://localhost:8787/mcp FEEDBACK_ADMIN_TOKEN=local-dev-token npx tsx test/protocol.ts  # ~80 checks, all doors
 pnpm --filter @abs/sdk example                                                     # the SDK against production
 ABS_URL=http://localhost:8787 npx tsx test/limits.ts                               # rate limits (spends a minute's budget)
+
+# The in-chat views in a dev-only MCP Apps host, against the local Worker:
+pnpm --filter @abs/site dev            # then http://localhost:5180/harness.html
 ```
 
+Deploying (`pnpm run deploy` in `packages/worker` builds the site first — not
+`pnpm deploy`, which is pnpm's own command) needs, once:
+the feedback migration on the remote D1 (`wrangler d1 execute abs-catalogue --remote
+--file=../schema/migrations/0003_public_micromacro.sql`) and two secrets
+(`wrangler secret put FEEDBACK_ADMIN_TOKEN`, `wrangler secret put FEEDBACK_SALT`).
+
 Rate limits, per client address: 600 requests/min overall; 120/min for data
-pulls (each is a live ABS call); 20/min for Code Mode `execute`. Over the limit,
+pulls (each is a live ABS call); 20/min for Code Mode `execute`; 5/min for
+feedback (and 20 per day, in D1). Over the limit,
 HTTP doors answer 429 with `Retry-After`; an MCP tool call gets a tool error.
 
 Using the SDK from TypeScript:

@@ -7,6 +7,14 @@ export interface Env {
   READS?: RateLimit;
   UPSTREAM?: RateLimit;
   EXECUTE?: RateLimit;
+  /** Feedback writes (web form and submit_feedback), per client IP (decision 33). */
+  FEEDBACK?: RateLimit;
+  /** The built pages (packages/site/dist/pages): the landing page, /admin, their assets. */
+  ASSETS?: Fetcher;
+  /** Bearer token for /api/admin/*. Unset = the admin API answers 503, never open. */
+  FEEDBACK_ADMIN_TOKEN?: string;
+  /** Salt for the daily sender hash. Unset in local dev; set as a secret in production. */
+  FEEDBACK_SALT?: string;
 }
 
 export const ABS_BASE = "https://data.api.abs.gov.au/rest";

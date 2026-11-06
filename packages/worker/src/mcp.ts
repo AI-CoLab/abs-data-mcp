@@ -12,10 +12,15 @@
  */
 import {
   CLIENT_CAPABILITIES_META_KEY,
+  CLIENT_INFO_META_KEY,
+  type ClientCapabilities,
   McpServer,
+  type ServerContext,
+  type ToolAnnotations,
   acceptedContent,
   inputRequired,
 } from "@modelcontextprotocol/server";
+import { RESOURCE_URI_META_KEY } from "@modelcontextprotocol/ext-apps/server";
 import {
   MANIFEST,
   describeTableInputSchema,
@@ -36,15 +41,65 @@ import { registerResources } from "./resources.ts";
 import { registerPrompts } from "./prompts.ts";
 import { registerCodeMode } from "./codemode.ts";
 import type { Env } from "./env.ts";
+import { catalogue as operations, type DoorCtx } from "./feedback.ts";
+import { registerMcpAppView, registerOperations, showsViews } from "./ops/mcp.ts";
+import { dataView } from "./views.ts";
 
 const NAME = "abs-data";
 const VERSION = MANIFEST.runId;
+const ORIGIN = "https://abs-data-front-door.aicolab.workers.dev";
 
-function jsonResult<T>(value: T) {
+/** The first 512 characters stand alone (ChatGPT reads only that much up front). */
+export const INSTRUCTIONS =
+  "ABS Data (observed): the Australian Bureau of Statistics' data, offering only tables and options confirmed to " +
+  "serve data. Flow: search_tables → describe_table → search_options (large dimensions such as geography) → " +
+  "get_data. A failed selection names the valid options; use them rather than guessing. Quote numbers only from " +
+  "get_data results, with provenance.runId. If the person wants to report a problem or an idea, use feedback_form " +
+  "(they review and send it); never call submit_feedback without their explicit OK.\n\n" +
+  "More: Code Mode `search` runs code over the whole catalogue document and `execute` runs multi-series analysis " +
+  "in a sandbox. Resources: abs://guide (how to use this server), abs://findings (what ABS's metadata gets wrong), " +
+  "abs://table/{id}. Prompts: suburb_dossier, compare_capitals, explain_metadata_gap, report_issue. Small-area " +
+  "series are volatile; read multi-year totals, not single years.";
+
+/** Every catalogue verb reads; get_data reaches ABS live, so it is open-world. */
+const READS: ToolAnnotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
+const LIVE_READ: ToolAnnotations = { ...READS, openWorldHint: true };
+
+function jsonResult<T>(value: T, links: Array<{ uri: string; name: string; title?: string }> = []) {
   return {
-    content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }],
+    content: [
+      { type: "text" as const, text: JSON.stringify(value, null, 2) },
+      // Resource links: the table's description as a document the client can open or attach.
+      ...links.map((l) => ({ type: "resource_link" as const, mimeType: "application/json", ...l })),
+    ],
     structuredContent: value as Record<string, unknown>,
   };
+}
+
+const tableLink = (id: string) => ({ uri: `abs://table/${encodeURIComponent(id)}`, name: id, title: `ABS table ${id}` });
+
+/** Who is calling, for the feedback operations: the client from the request's envelope, where it sent one. */
+function doorCtx(env: Env, ip: string, mcp: ServerContext): DoorCtx {
+  const envelope = mcp.mcpReq.envelope as Record<string, unknown> | undefined;
+  const info = envelope?.[CLIENT_INFO_META_KEY] as { name?: unknown; version?: unknown } | undefined;
+  return {
+    env,
+    channel: "mcp",
+    ip,
+    client: info
+      ? {
+          name: typeof info.name === "string" ? info.name : undefined,
+          version: typeof info.version === "string" ? info.version : undefined,
+        }
+      : undefined,
+  };
+}
+
+export interface BuildOptions {
+  /** The client's address (cf-connecting-ip), for the feedback sender hash only. */
+  ip: string;
+  /** Capabilities the request declared (2026-07-28 envelope), when it carried any. */
+  client?: ClientCapabilities | undefined;
 }
 
 function errorResult(error: InvalidSelection) {
@@ -55,11 +110,21 @@ function errorResult(error: InvalidSelection) {
   };
 }
 
-export function buildMcpServer(env: Env, ctx: ExecutionContext): McpServer {
+export function buildMcpServer(env: Env, ctx: ExecutionContext, opts: BuildOptions = { ip: "unknown" }): McpServer {
   const catalogue = new Catalogue(env.CATALOGUE);
+  const views = showsViews(opts.client);
   // Cache hints for the 2026-07-28 cacheable results: the surface changes only
   // per crawl, so shared caches may hold tools/list for a day (decision 22).
-  const server = new McpServer({ name: NAME, version: VERSION }, { cacheHints: MCP_CACHE_HINTS });
+  const server = new McpServer(
+    {
+      name: NAME,
+      title: "ABS Data (observed)",
+      version: VERSION,
+      websiteUrl: ORIGIN,
+      icons: [{ src: `${ORIGIN}/icon.svg`, mimeType: "image/svg+xml", sizes: ["any"] }],
+    },
+    { cacheHints: MCP_CACHE_HINTS, instructions: INSTRUCTIONS },
+  );
 
   server.registerTool(
     "search_tables",
@@ -74,6 +139,7 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext): McpServer {
         "data — nothing here comes from documentation alone. Start here, then describe_table.",
       inputSchema: searchTablesInputSchema,
       outputSchema: searchTablesOutputSchema,
+      annotations: { ...READS, title: "Search ABS tables" },
     },
     async (input) => jsonResult(await catalogue.searchTables(input)),
   );
@@ -88,6 +154,7 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext): McpServer {
         "searchable with search_options.",
       inputSchema: describeTableInputSchema,
       outputSchema: describeTableOutputSchema,
+      annotations: { ...READS, title: "Describe a table" },
     },
     async (input) => {
       const described = await catalogue.describeTable(input.table);
@@ -100,7 +167,7 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext): McpServer {
           message: `No table "${input.table}" serves data. Use search_tables.`,
         });
       }
-      return jsonResult(described);
+      return jsonResult(described, [tableLink(input.table)]);
     },
   );
 
@@ -113,6 +180,7 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext): McpServer {
         "dimension. Returns codes to use in get_data's select.",
       inputSchema: searchOptionsInputSchema,
       outputSchema: searchOptionsOutputSchema,
+      annotations: { ...READS, title: "Search a dimension's options" },
     },
     async (input) => jsonResult(await catalogue.searchOptions(input.table, input.dimension, input.query, input.limit)),
   );
@@ -129,6 +197,9 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext): McpServer {
         "If an option or combination does not exist you are asked to choose from the valid ones.",
       inputSchema: getDataInputSchema,
       outputSchema: getDataOutputSchema,
+      annotations: { ...LIVE_READ, title: "Get data" },
+      // On a host that shows MCP App views, the result also renders as a chart and a table.
+      ...(views ? { _meta: { ui: { resourceUri: dataView.uri }, [RESOURCE_URI_META_KEY]: dataView.uri } } : {}),
     },
     async (input, ctx) => {
       // Fold in any correction the client supplied on a retry.
@@ -138,7 +209,7 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext): McpServer {
         if (answer?.value) select[dimension] = answer.value;
       }
       const resolved = await resolveSelection(catalogue, input.table, select);
-      if (resolved.ok) return jsonResult(await fetchData(resolved.value, { ...input, select }));
+      if (resolved.ok) return jsonResult(await fetchData(resolved.value, { ...input, select }), [tableLink(input.table)]);
 
       const err = resolved.error;
       // Correctable in one round trip: ask for a valid option for the dimension —
@@ -187,6 +258,10 @@ export function buildMcpServer(env: Env, ctx: ExecutionContext): McpServer {
   registerResources(server, catalogue);
   registerPrompts(server);
   registerCodeMode(server, env, ctx);
+  // The operations written against ./ops/define (app-kit's shape): feedback_form and
+  // submit_feedback, with the feedback view; and the chart view get_data points at.
+  registerOperations(server, operations, (mcp) => doorCtx(env, opts.ip, mcp), { client: opts.client });
+  if (views) registerMcpAppView(server, dataView);
   return server;
 }
 

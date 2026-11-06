@@ -1,0 +1,53 @@
+/* ── cartography — the front door's theme over @aicolab/ui-solid ─────────────
+   The /catalogue artifact's survey-paper palette as ui-solid anchors: cool
+   neutrals biased toward the ink-blue accent, and the thesis's two hues —
+   amber for what ABS's metadata declares, teal for what was observed.
+
+   Anchors and ladders only, the way ui-solid's own themes are written: the
+   resolver derives every surface, border and content role per scheme. Authored
+   on `.ui-theme`, never on :root (the pages put the class on <html>). The flat
+   house finish stays: this is a map, not a plate of brass. */
+
+.ui-theme.theme-cartography {
+	--color-base-100: light-dark(#ffffff, #141b21);
+	--color-base-content: light-dark(#0f161c, #e8eef4);
+	/* Ink blue: links, actions, the selected tab. */
+	--color-primary: light-dark(#12457a, #6aa5dd);
+	/* Teal: what was observed — confirmed by retrieval. */
+	--color-secondary: light-dark(#0a6a5f, #45c3ae);
+	--color-success: light-dark(#0a6a5f, #45c3ae);
+	/* Amber: what ABS's metadata declares. */
+	--color-accent: light-dark(#9a6212, #d99f4d);
+	--color-warning: light-dark(#9a6212, #d99f4d);
+	--color-info: light-dark(#12457a, #6aa5dd);
+	--color-error: light-dark(#a01f1f, #e8756f);
+	--color-neutral: light-dark(#46545f, #a2b1bd);
+
+	--font-display: "IBM Plex Sans Condensed", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+/* The page's own tokens, named as the artifact names them, for the few
+   surfaces the components do not draw (the hero's survey grid, the key). */
+.ui-theme.theme-cartography {
+	--carto-ground: light-dark(#f4f6f8, #0d1216);
+	--carto-sunk: light-dark(#e9edf1, #1b242b);
+	--carto-rule: light-dark(#d9e0e6, #263139);
+	--carto-rule-strong: light-dark(#b9c4cd, #38454f);
+	--carto-ink-soft: light-dark(#46545f, #a2b1bd);
+	--carto-ink-faint: light-dark(#5f6c76, #8d9aa5);
+	--carto-accent: light-dark(#12457a, #6aa5dd);
+	--carto-accent-soft: light-dark(#e3ecf6, #16283a);
+	--carto-observed: light-dark(#0a6a5f, #45c3ae);
+	--carto-observed-soft: light-dark(#dcefeb, #102b28);
+	--carto-declared: light-dark(#9a6212, #d99f4d);
+	--carto-declared-soft: light-dark(#f6ecd9, #2e2415);
+}
+
+html.theme-cartography,
+html.theme-cartography body {
+	background: var(--carto-ground);
+	color: var(--color-base-content);
+	font-family: var(--font-sans);
+}

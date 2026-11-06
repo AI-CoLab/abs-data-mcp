@@ -7,7 +7,17 @@ import { McpServer, ResourceTemplate } from "@modelcontextprotocol/server";
 import { OpenAPIGenerator } from "@orpc/openapi";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { httpContract } from "@abs/contract/http";
-import { BRANDED_CODELISTS, FINDINGS_MD, LITERAL_CODELISTS, MANIFEST, TABLES } from "@abs/contract";
+import { BRANDED_CODELISTS, FINDINGS_MD, LITERAL_CODELISTS, MANIFEST, TABLE_IDS, TABLES } from "@abs/contract";
+
+/** Table ids for a typed prefix (completion/complete): prefix matches first, then substring, at most 100. */
+export function completeTableId(value: string): string[] {
+  const q = value.trim().toUpperCase();
+  const ids = TABLE_IDS as readonly string[];
+  if (!q) return ids.slice(0, 100);
+  const starts = ids.filter((id) => id.toUpperCase().startsWith(q));
+  const contains = ids.filter((id) => !id.toUpperCase().startsWith(q) && id.toUpperCase().includes(q));
+  return [...starts, ...contains].slice(0, 100);
+}
 import * as generated from "@abs/contract/generated";
 import type { Catalogue } from "./catalogue.ts";
 import { OPENAPI_INFO } from "./http.ts";
@@ -118,10 +128,11 @@ export function registerResources(server: McpServer, catalogue: Catalogue): void
   );
 
   // Per-table resource: abs://table/CPI. Not enumerated in resources/list (1,227
-  // entries would swamp it) — readable directly once a table id is known.
+  // entries would swamp it) — readable directly once a table id is known, and
+  // completable: a client that offers completion suggests ids as they are typed.
   server.registerResource(
     "table",
-    new ResourceTemplate("abs://table/{id}", { list: undefined }),
+    new ResourceTemplate("abs://table/{id}", { list: undefined, complete: { id: completeTableId } }),
     { title: "A table's description", description: "Key structure, coverage and observed options for one table — the same as describe_table.", mimeType: "application/json" },
     async (uri, variables) => {
       const id = String(variables["id"] ?? "");

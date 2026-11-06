@@ -1,0 +1,6 @@
+[submodule "packages/ui-solid"]
+	path = packages/ui-solid
+	url = https://github.com/SamJB123/aicolab-ui-solid.git
+[submodule "packages/solid"]
+	path = packages/solid
+	url = https://github.com/SamJB123/aicolab-solid.git

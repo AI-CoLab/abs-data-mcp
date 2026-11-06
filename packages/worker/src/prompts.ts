@@ -2,9 +2,10 @@
  * MCP prompts: packaged workflows over the four verbs — the showcases carried
  * inside the server rather than left to each client to rediscover.
  */
-import { McpServer } from "@modelcontextprotocol/server";
+import { McpServer, completable } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { MANIFEST } from "@abs/contract";
+import { completeTableId } from "./resources.ts";
 
 const user = (text: string) => ({ messages: [{ role: "user" as const, content: { type: "text" as const, text } }] });
 
@@ -57,7 +58,11 @@ export function registerPrompts(server: McpServer): void {
     {
       title: "Explain the metadata gap",
       description: "Explain, with live examples, why ABS's published metadata implies 23.8× more data than exists — and why this front door only offers what does.",
-      argsSchema: z.object({ table: z.string().optional().describe("A table to use as the worked example; defaults to CPI") }),
+      argsSchema: z.object({
+        table: completable(z.string().optional().describe("A table to use as the worked example; defaults to CPI"), (value) =>
+          completeTableId(value ?? ""),
+        ),
+      }),
     },
     ({ table }) =>
       user(
@@ -65,6 +70,26 @@ export function registerPrompts(server: McpServer): void {
           `Read the resource abs://findings first. Then use describe_table on ${table ?? "CPI"}: multiply its dimensions' option counts to get the implied combinations, compare with its seriesCount and density, and demonstrate one combination that the metadata implies but which does not exist (get_data will return the valid alternatives). ` +
           `Corpus-wide: ${MANIFEST.corpus.seriesConfirmed.toLocaleString("en-AU")} series exist against ${MANIFEST.corpus.seriesImpliedByMetadata.toLocaleString("en-AU")} implied (${((MANIFEST.corpus.density ?? 0) * 100).toFixed(2)}%). ` +
           `Explain the mechanism (per-dimension marginals are exact; the implied cross-product is not; hierarchical geography encoded as separate dimensions accounts for most of it) and what a consumer should do about it.`,
+      ),
+  );
+
+  server.registerPrompt(
+    "report_issue",
+    {
+      title: "Send feedback about this connector",
+      description:
+        "Report a problem, a wrong-looking figure or an idea to the connector's maintainers. Drafts it from the conversation; you review it before anything is sent.",
+      argsSchema: z.object({
+        what: z.string().optional().describe("What went wrong or what you'd like, in a few words"),
+      }),
+    },
+    ({ what }) =>
+      user(
+        `I'd like to send feedback about the ABS Data connector${what ? `: ${what}` : ""}.\n\n` +
+          `Draft it from our conversation — the kind (bug, data, missing, idea, docs, praise, other), a one-line summary in my words, ` +
+          `what happened and what I expected, and the tool, table, selection and error involved if there was one. Use about="abs" only if it is about ABS's own data or API. ` +
+          `Leave out anything personal, and don't add an email address unless I give you one. ` +
+          `Then call feedback_form with the draft so I can review and send it. If no form appears, show me the draft here and wait for my OK before calling submit_feedback.`,
       ),
   );
 }

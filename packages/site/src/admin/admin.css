@@ -1,0 +1,238 @@
+/* ── The feedback inbox ───────────────────────────────────────────────────── */
+html.theme-cartography {
+	--t-md: 15px;
+	--r-sm: 4px;
+	--r-md: 6px;
+	--r-lg: 8px;
+}
+body {
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.55;
+}
+.ad-top {
+	border-bottom: 1px solid var(--carto-rule);
+	background: var(--carto-sunk);
+}
+.ad-top-inner {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 10px 16px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+.ad-brand {
+	margin-inline-end: auto;
+	font-family: var(--font-display);
+	font-weight: 600;
+	font-size: 17px;
+	color: var(--color-base-content);
+	text-decoration: none;
+}
+.ad-brand span {
+	color: var(--carto-ink-soft);
+	font-weight: 500;
+}
+.ad-main {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 32px 16px 80px;
+}
+.ad-main :focus-visible {
+	outline: 2px solid var(--carto-accent);
+	outline-offset: 2px;
+}
+.ad-main a {
+	color: var(--carto-accent);
+}
+.ad-main h1 {
+	font-family: var(--font-display);
+	font-weight: 600;
+	margin: 0;
+	font-size: 1.8rem;
+}
+.ad-main code {
+	font-family: var(--font-data);
+	font-size: 0.88em;
+	overflow-wrap: anywhere;
+}
+.ad-gate {
+	max-width: 26rem;
+	margin: 48px auto;
+	display: grid;
+	gap: 16px;
+	padding: 28px;
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-lg);
+}
+.ad-gate p {
+	margin: 0;
+	color: var(--carto-ink-soft);
+}
+.ad-gate input {
+	width: 100%;
+}
+.ad-main .ui-field-label {
+	font-family: var(--font-sans);
+	font-size: 14px;
+	font-weight: 500;
+	letter-spacing: 0;
+	text-transform: none;
+}
+.ad-error {
+	margin: 0;
+	color: var(--color-error);
+}
+.ad-inbox-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+}
+.ad-count {
+	margin: 0;
+	font-family: var(--font-data);
+	font-size: 13px;
+	color: var(--carto-ink-faint);
+}
+.ad-filters {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+	gap: 12px;
+	align-items: end;
+	padding: 16px;
+	margin-bottom: 20px;
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-lg);
+}
+.ad-filters select {
+	width: 100%;
+}
+.ad-filter-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.ad-empty {
+	color: var(--carto-ink-soft);
+}
+.ad-list {
+	list-style: none;
+	margin: 0 0 20px;
+	padding: 0;
+	display: grid;
+	gap: 8px;
+}
+.ad-row details {
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-md);
+}
+.ad-row[data-about="abs"] details {
+	border-inline-start: 3px solid var(--carto-declared);
+}
+.ad-row details[open] {
+	border-color: var(--carto-rule-strong);
+}
+.ad-row summary {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 4px 12px;
+	padding: 12px 14px;
+	cursor: pointer;
+	list-style: none;
+}
+.ad-row summary::-webkit-details-marker {
+	display: none;
+}
+.ad-row-when {
+	font-family: var(--font-data);
+	font-size: 12.5px;
+	color: var(--carto-ink-faint);
+	white-space: nowrap;
+}
+.ad-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	justify-content: flex-end;
+}
+.ad-tag {
+	font-family: var(--font-data);
+	font-size: 11.5px;
+	padding: 1px 7px;
+	border: 1px solid var(--carto-rule-strong);
+	border-radius: 999px;
+	color: var(--carto-ink-soft);
+}
+.ad-tag[data-kind="about"][data-value="abs"] {
+	background: var(--carto-declared-soft);
+	border-color: var(--carto-declared);
+	color: var(--color-base-content);
+}
+.ad-tag[data-kind="status"][data-value="new"] {
+	background: var(--carto-accent-soft);
+	border-color: var(--carto-accent);
+	color: var(--color-base-content);
+}
+.ad-row-summary {
+	grid-column: 1 / -1;
+	font-weight: 500;
+	overflow-wrap: anywhere;
+}
+.ad-row-body {
+	padding: 4px 14px 16px;
+	border-top: 1px solid var(--carto-rule);
+	display: grid;
+	gap: 14px;
+}
+.ad-details {
+	margin: 10px 0 0;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+.ad-meta {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 4px 16px;
+	margin: 0;
+	font-size: 14px;
+}
+.ad-meta dt {
+	color: var(--carto-ink-faint);
+}
+.ad-meta dd {
+	margin: 0;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+.ad-faint {
+	color: var(--carto-ink-faint);
+}
+.ad-edit {
+	display: grid;
+	gap: 10px;
+	padding-top: 12px;
+	border-top: 1px dashed var(--carto-rule);
+}
+.ad-edit :where(select, textarea) {
+	width: 100%;
+}
+.ad-edit-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+@media (max-width: 560px) {
+	.ad-row summary {
+		grid-template-columns: 1fr;
+	}
+	.ad-tags {
+		justify-content: flex-start;
+	}
+}

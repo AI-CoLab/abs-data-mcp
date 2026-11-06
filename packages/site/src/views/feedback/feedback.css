@@ -1,0 +1,57 @@
+.fb-form {
+	display: grid;
+	gap: 12px;
+}
+
+.fb-about {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 6px;
+}
+
+.fb-about legend {
+	font-weight: 500;
+	font-size: 13px;
+	margin-bottom: 4px;
+}
+
+.fb-radio {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+	font-size: 13.5px;
+	cursor: pointer;
+}
+
+.fb-radio input {
+	margin-top: 3px;
+	accent-color: var(--color-primary);
+}
+
+.fb-context {
+	border: 1px dashed var(--carto-rule-strong);
+	border-radius: 6px;
+	padding: 8px 10px;
+	display: grid;
+	gap: 6px;
+	justify-items: start;
+}
+
+.fb-context dl {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 2px 12px;
+	margin: 0;
+	font-size: 13px;
+}
+
+.fb-context dt {
+	color: var(--carto-ink-faint);
+}
+
+.fb-context dd {
+	margin: 0;
+	overflow-wrap: anywhere;
+}

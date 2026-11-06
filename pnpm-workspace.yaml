@@ -1,5 +1,6 @@
 packages:
   - "packages/*"
+  - "tooling/*"
 
 # better-sqlite3 needs its native binding compiled; esbuild backs tsx.
 allowBuilds:
@@ -7,7 +8,56 @@ allowBuilds:
   core-js-pure: set this to true or false
   esbuild: true
   vue-demi: set this to true or false
+  workerd: true
 
 minimumReleaseAgeExclude:
   - miniflare@5.20260907.0-alpha
   - wrangler@4.129.1
+
+# The catalog and overrides below exist for packages/ui-solid and packages/solid,
+# git submodules of the AI CoLab component system (DESIGN.md decision 32). Their
+# manifests say `catalog:` and `workspace:^`, so this workspace must answer both.
+# The source of truth is aicolab-portal's pnpm-workspace.yaml: these entries are
+# copied from it at the submodules' pinned commits and move with them. When the
+# front door later moves into the portal, this block is deleted, not merged.
+catalog:
+  "@prosekit/core": 0.13.3
+  "@prosekit/extensions": 0.18.3
+  "@prosekit/pm": 0.1.20
+  "@y/prosemirror": 2.0.0-12
+  "@y/y": 14.0.0-rc.26
+  three: ^0.187.0
+  "@types/three": ^0.187.0
+  "@webgpu/types": ^0.1.74
+  "@solidjs/web": 2.0.0-rc.18
+  "@solidjs/h": 2.0.0-rc.18
+  solid-js: 2.0.0-rc.18
+  "@solidjs/vite-plugin": 3.0.0-next.51
+  vite-plugin-solid: 3.0.0-next.27
+  vite-plugin-singlefile: ^2.3.4
+  vite: ^8.3.0
+  typescript: ~7.0.2
+  wrangler: ^4.136.1
+  storybook: ^10.6.0
+  "@storybook/addon-docs": ^10.6.0
+  storybook-solidjs-vite: ^10.7.2
+  "@modelcontextprotocol/ext-apps": ^2.0.4
+  "@modelcontextprotocol/core": ^2.4.0
+  "@modelcontextprotocol/server": ^2.4.0
+
+# The Solid 2 rc family resolves as ONE matched set, and yjs as one copy
+# (double-import breaks instanceof) — the portal's pins, for the same reasons.
+overrides:
+  "@y/y": 14.0.0-rc.26
+  lib0: 1.0.0-rc.32
+  vite-plugin-solid: 3.0.0-next.27
+  "@solidjs/vite-plugin": 3.0.0-next.51
+  "@solidjs/signals": 2.0.0-rc.18
+  "@solidjs/compiler": 2.0.0-rc.18
+  "@solidjs/babel-plugin": 2.0.0-rc.18
+  # ONE zod copy: the contract's schemas are read by the MCP SDK, ext-apps and the
+  # views, and two instances split their types (the portal pins the same version).
+  zod: 4.6.5
+  # ONE ws: @orpc/server takes ws as an optional peer, and the submodules' dev tooling
+  # brought a second ws, which split oRPC into two instances whose types disagree.
+  ws: 8.22.1

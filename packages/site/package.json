@@ -1,0 +1,29 @@
+{
+  "name": "@abs/site",
+  "description": "The front door's pages and MCP App views: the landing page, the feedback admin page, and the in-chat views — Solid + @aicolab/ui-solid, built to static files the Worker serves (DESIGN.md decision 32)",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm build:pages && pnpm build:views",
+    "build:pages": "vite build",
+    "build:views": "VIEW=feedback vite build -c vite.views.config.ts && VIEW=data vite build -c vite.views.config.ts",
+    "dev": "vite dev --port 5180",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@abs/contract": "workspace:*",
+    "@aicolab/ui-solid": "workspace:^",
+    "@modelcontextprotocol/core": "catalog:",
+    "@modelcontextprotocol/ext-apps": "catalog:",
+    "@solidjs/web": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@aicolab/tsconfig": "workspace:^",
+    "@solidjs/vite-plugin": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-singlefile": "catalog:"
+  }
+}

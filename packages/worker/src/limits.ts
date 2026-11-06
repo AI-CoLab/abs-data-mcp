@@ -18,13 +18,16 @@
  */
 import type { Env } from "./env.ts";
 
-export type Tier = "READS" | "UPSTREAM" | "EXECUTE";
+export type Tier = "READS" | "UPSTREAM" | "EXECUTE" | "FEEDBACK";
 
 /** Mirrors wrangler.toml; used for the message and Retry-After. */
 export const LIMITS: Record<Tier, { limit: number; period: number }> = {
   READS: { limit: 600, period: 60 },
   UPSTREAM: { limit: 120, period: 60 },
   EXECUTE: { limit: 20, period: 60 },
+  // Feedback writes (decision 33): a person never needs more than a few a minute.
+  // Daily caps per sender and in total are enforced in D1 (feedback.ts).
+  FEEDBACK: { limit: 5, period: 60 },
 };
 
 export interface Classified {
@@ -41,6 +44,11 @@ export async function classify(request: Request, url: URL): Promise<Classified> 
 
   if (url.pathname === "/api/data") {
     upstream();
+    return { tiers };
+  }
+
+  if (url.pathname === "/api/feedback" && request.method === "POST") {
+    tiers.push("FEEDBACK");
     return { tiers };
   }
 
@@ -63,6 +71,7 @@ export async function classify(request: Request, url: URL): Promise<Classified> 
     }
     if (toolName === "execute") tiers.push("EXECUTE");
     else if (toolName === "get_data") upstream();
+    else if (toolName === "submit_feedback") tiers.push("FEEDBACK");
     return { tiers, jsonRpcId, toolName };
   }
 
@@ -108,7 +117,9 @@ export async function enforce(env: Env, request: Request, tiers: Tier[]): Promis
         message:
           tier === "EXECUTE"
             ? `Rate limited: more than ${limit} execute calls per ${period}s from this address. Each execute may make 50 upstream calls; batch more work into fewer calls, or use get_data for single series.`
-            : tier === "UPSTREAM"
+            : tier === "FEEDBACK"
+              ? `Thank you — that is more than ${limit} pieces of feedback in a minute from this address. Please wait a minute and send it again.`
+              : tier === "UPSTREAM"
               ? `Rate limited: more than ${limit} data requests per ${period}s from this address. Catalogue verbs (search, describe, options) are not limited this way; for bulk pulls use fullDataUrl against ABS directly.`
               : `Rate limited: more than ${limit} requests per ${period}s from this address.`,
       };

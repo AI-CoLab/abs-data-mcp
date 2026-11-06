@@ -1,0 +1,889 @@
+/* ── The landing page, in the cartography look ───────────────────────────────
+   Survey paper: cool ground, white plates with hairline rules, ink-blue
+   actions, amber for what ABS declares and teal for what exists. The grid
+   motif appears twice — behind the hero and in the mark — and nowhere else. */
+
+html.theme-cartography {
+	/* The page's ladders: a reading-sized body and the map's tight corners. */
+	--t-md: 15px;
+	--t-lg: 17px;
+	--r-xs: 3px;
+	--r-sm: 4px;
+	--r-md: 6px;
+	--r-lg: 8px;
+	--r-xl: 10px;
+	--lp-max: 72rem;
+	--lp-gutter: 16px;
+	scroll-padding-top: 76px;
+}
+@media (min-width: 640px) {
+	html.theme-cartography {
+		--lp-gutter: 24px;
+	}
+}
+@media (min-width: 1024px) {
+	html.theme-cartography {
+		--lp-gutter: 32px;
+	}
+}
+@media (prefers-reduced-motion: no-preference) {
+	html.theme-cartography {
+		scroll-behavior: smooth;
+	}
+}
+
+body {
+	margin: 0;
+	font-size: 16px;
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+	overflow-x: clip;
+}
+
+.lp-skip {
+	position: absolute;
+	left: 8px;
+	top: -48px;
+	z-index: 50;
+	padding: 8px 12px;
+	background: var(--color-base-100);
+	color: var(--carto-accent);
+	border: 1px solid var(--carto-rule-strong);
+	border-radius: var(--r-sm);
+}
+.lp-skip:focus {
+	top: 8px;
+}
+
+/* Links, not buttons: an unlayered rule here outranks ui-solid's layered
+   button ink, so ButtonLink is excluded explicitly. */
+:where(.lp-top, main, .lp-footer) a:not(.ui-btn) {
+	color: var(--carto-accent);
+	text-underline-offset: 3px;
+	text-decoration-thickness: 1px;
+}
+:where(.lp-top, main, .lp-footer) a:not(.ui-btn):hover {
+	text-decoration-thickness: 2px;
+}
+:where(.lp-top, main, .lp-footer) :focus-visible {
+	outline: 2px solid var(--carto-accent);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+main code,
+.lp-footer code {
+	font-family: var(--font-data);
+	font-size: 0.88em;
+	background: var(--carto-sunk);
+	padding: 0.1em 0.35em;
+	border-radius: var(--r-xs);
+	overflow-wrap: anywhere;
+}
+
+.lp-eyebrow {
+	margin: 0 0 10px;
+	font-family: var(--font-data);
+	font-size: 12px;
+	font-weight: 500;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--carto-ink-faint);
+}
+
+h1,
+h2,
+h3,
+h4 {
+	font-family: var(--font-display);
+	text-wrap: balance;
+	color: var(--color-base-content);
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.lp-top {
+	position: sticky;
+	top: 0;
+	z-index: 20;
+	background: color-mix(in oklab, var(--carto-ground) 88%, transparent);
+	backdrop-filter: blur(10px);
+	border-bottom: 1px solid var(--carto-rule);
+}
+.lp-top-inner {
+	max-width: var(--lp-max);
+	margin: 0 auto;
+	padding: 10px var(--lp-gutter);
+	display: flex;
+	align-items: center;
+	gap: 8px 20px;
+	flex-wrap: wrap;
+}
+.lp-wordmark {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	font-family: var(--font-display);
+	font-weight: 600;
+	font-size: 18px;
+	letter-spacing: 0.01em;
+	color: var(--color-base-content) !important;
+	text-decoration: none;
+	margin-inline-end: auto;
+}
+.lp-wordmark-dot {
+	color: var(--carto-declared);
+}
+.lp-wordmark-sub {
+	color: var(--carto-observed);
+	font-weight: 500;
+}
+.lp-nav {
+	display: flex;
+	gap: 4px 16px;
+	font-size: 14px;
+}
+.lp-nav a {
+	text-decoration: none;
+	color: var(--carto-ink-soft);
+	padding: 6px 0;
+}
+.lp-nav a:hover {
+	color: var(--carto-accent);
+	text-decoration: underline;
+}
+.lp-nav-out {
+	padding-inline-start: 16px;
+	border-inline-start: 1px solid var(--carto-rule);
+}
+@media (max-width: 719px) {
+	.lp-top-inner {
+		gap: 4px 14px;
+	}
+	.lp-nav-out {
+		display: none;
+	}
+	.lp-nav {
+		order: 3;
+		width: 100%;
+		font-size: 14px;
+		gap: 18px;
+	}
+	.lp-theme {
+		order: 2;
+	}
+}
+
+/* ── The mark ───────────────────────────────────────────────────────────── */
+.lp-mark {
+	flex: none;
+}
+/* A logo, so one colour in both schemes. */
+.lp-mark-ground {
+	fill: #12457a;
+}
+.lp-mark-grid {
+	stroke: #ffffff;
+	stroke-opacity: 0.16;
+	stroke-width: 1;
+}
+.lp-mark-line {
+	fill: none;
+	stroke: #e0a85a;
+	stroke-width: 2.6;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+.lp-mark-point {
+	fill: #45c3ae;
+	stroke: #12457a;
+	stroke-width: 1.2;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+.lp-hero {
+	position: relative;
+	isolation: isolate;
+	overflow: clip;
+	border-bottom: 1px solid var(--carto-rule);
+}
+.lp-hero-grid {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-image:
+		linear-gradient(var(--carto-rule-strong) 1px, transparent 1px),
+		linear-gradient(90deg, var(--carto-rule-strong) 1px, transparent 1px),
+		linear-gradient(var(--carto-rule) 1px, transparent 1px),
+		linear-gradient(90deg, var(--carto-rule) 1px, transparent 1px);
+	background-size:
+		120px 120px,
+		120px 120px,
+		24px 24px,
+		24px 24px;
+	background-position: -1px -1px;
+	opacity: 0.55;
+	mask-image: radial-gradient(ellipse 80% 90% at 85% 10%, #000 0%, transparent 70%);
+}
+.lp-hero-inner {
+	max-width: var(--lp-max);
+	margin: 0 auto;
+	padding: 48px var(--lp-gutter) 40px;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 36px;
+}
+@media (min-width: 1000px) {
+	.lp-hero-inner {
+		grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+		align-items: center;
+		gap: 56px;
+		padding-block: 88px 72px;
+	}
+}
+/* The map's legend: the URL, the key, the survey date. */
+.lp-legend {
+	display: grid;
+	gap: 14px;
+	padding: 20px;
+	background: color-mix(in oklab, var(--color-base-100) 92%, transparent);
+	border: 1px solid var(--carto-rule-strong);
+	border-radius: var(--r-lg);
+	box-shadow: 0 1px 2px rgb(15 22 28 / 0.05), 0 12px 32px -20px rgb(15 22 28 / 0.35);
+}
+.lp-legend-title {
+	margin: 0;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--carto-rule);
+	font-family: var(--font-data);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--carto-ink-faint);
+}
+.lp-legend-note {
+	margin: -4px 0 0;
+	font-size: 14px;
+	color: var(--carto-ink-soft);
+}
+.lp-legend .lp-density {
+	margin: 6px 0 0;
+	padding-top: 14px;
+	border-top: 1px solid var(--carto-rule);
+}
+.lp-legend .lp-density-legend {
+	flex-direction: column;
+}
+.lp-legend .lp-status {
+	margin: 0;
+}
+.lp-hero h1 {
+	margin: 0;
+	max-width: 22ch;
+	font-size: clamp(2.1rem, 1.3rem + 3.6vw, 3.75rem);
+	line-height: 1.05;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+.lp-lede {
+	margin: 20px 0 0;
+	max-width: 62ch;
+	font-size: clamp(1.02rem, 0.95rem + 0.35vw, 1.2rem);
+	line-height: 1.55;
+	color: var(--carto-ink-soft);
+}
+.lp-hero-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 28px;
+}
+.lp-cta-main {
+	--ui-btn-pad-block: 11px;
+	--ui-btn-pad-inline: 20px;
+	--ui-btn-font-size: 16px;
+	font-weight: 600;
+	text-decoration: none !important;
+}
+
+/* ── Copy boxes ─────────────────────────────────────────────────────────── */
+.lp-copy-label,
+.lp-block figcaption > span {
+	font-family: var(--font-data);
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--carto-ink-faint);
+}
+.lp-copy {
+	display: grid;
+	gap: 6px;
+}
+.lp-copy-row {
+	display: flex;
+	align-items: stretch;
+	gap: 8px;
+	padding: 6px 6px 6px 14px;
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule-strong);
+	border-radius: var(--r-md);
+}
+.lp-copy-value {
+	flex: 1;
+	min-width: 0;
+	align-self: center;
+	font-family: var(--font-data);
+	font-size: 14px;
+	background: none !important;
+	padding: 0 !important;
+	overflow-wrap: anywhere;
+	color: var(--color-base-content);
+}
+.lp-copy-btn {
+	flex: none;
+	--ui-btn-pad-block: 6px;
+	--ui-btn-pad-inline: 12px;
+	--ui-btn-font-size: 13px;
+}
+.lp-block {
+	margin: 0;
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-md);
+	overflow: hidden;
+}
+.lp-block figcaption {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 4px 6px 4px 12px;
+	border-bottom: 1px solid var(--carto-rule);
+	background: var(--carto-sunk);
+}
+.lp-block pre {
+	margin: 0;
+	padding: 12px 14px;
+	font-family: var(--font-data);
+	font-size: 13px;
+	line-height: 1.55;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	color: var(--color-base-content);
+	max-height: 22rem;
+	overflow: auto;
+}
+.lp-block[data-prose] pre {
+	font-family: var(--font-sans);
+	font-size: 15px;
+}
+
+/* ── Declared vs observed ───────────────────────────────────────────────── */
+.lp-density {
+	margin: 0;
+}
+.lp-density-bar {
+	position: relative;
+	height: 12px;
+	background: var(--carto-declared-soft);
+	border: 1px solid color-mix(in oklab, var(--carto-declared) 55%, transparent);
+	border-radius: 2px;
+	background-image: repeating-linear-gradient(
+		90deg,
+		transparent 0 calc(10% - 1px),
+		color-mix(in oklab, var(--carto-declared) 30%, transparent) calc(10% - 1px) 10%
+	);
+}
+.lp-density-observed {
+	position: absolute;
+	inset-block: -1px;
+	left: -1px;
+	min-width: 4px;
+	background: var(--carto-observed);
+	border-radius: 2px 0 0 2px;
+}
+.lp-density-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 24px;
+	margin-top: 10px;
+	font-size: 13.5px;
+	color: var(--carto-ink-soft);
+}
+.lp-key {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 8px;
+}
+.lp-key i {
+	flex: none;
+	width: 10px;
+	height: 10px;
+	border-radius: 2px;
+	transform: translateY(1px);
+}
+.lp-key-declared i {
+	background: var(--carto-declared-soft);
+	border: 1px solid var(--carto-declared);
+}
+.lp-key-observed i {
+	background: var(--carto-observed);
+}
+.lp-key strong {
+	font-family: var(--font-data);
+	font-weight: 500;
+	color: var(--color-base-content);
+}
+
+.lp-status {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 16px;
+	margin: 20px 0 0;
+	font-size: 13px;
+	color: var(--carto-ink-faint);
+}
+.lp-status strong {
+	font-weight: 500;
+	color: var(--carto-ink-soft);
+}
+.lp-status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--carto-observed);
+	box-shadow: 0 0 0 3px var(--carto-observed-soft);
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+.lp-section {
+	max-width: var(--lp-max);
+	margin: 0 auto;
+	padding: 64px var(--lp-gutter) 16px;
+}
+@media (min-width: 900px) {
+	.lp-section {
+		padding-top: 96px;
+	}
+}
+.lp-section-head {
+	max-width: 46rem;
+	margin-bottom: 28px;
+}
+.lp-section-head h2 {
+	margin: 0;
+	font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.3rem);
+	line-height: 1.12;
+	font-weight: 600;
+}
+.lp-section-lede {
+	margin: 12px 0 0;
+	font-size: 17px;
+	color: var(--carto-ink-soft);
+}
+
+/* ── Connect ────────────────────────────────────────────────────────────── */
+.lp-picker {
+	margin-bottom: 16px;
+	max-width: 100%;
+}
+.lp-picker .seg {
+	max-width: 100%;
+}
+.lp-guide {
+	--ui-step-disc-underlay: var(--color-base-100);
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-xl);
+	padding: 20px 16px;
+}
+@media (min-width: 640px) {
+	.lp-guide {
+		padding: 28px 28px;
+	}
+}
+@media (min-width: 1024px) {
+	.lp-guide {
+		padding: 32px 36px;
+	}
+}
+.lp-guide-head {
+	padding-bottom: 20px;
+	margin-bottom: 8px;
+	border-bottom: 1px solid var(--carto-rule);
+}
+.lp-guide-head h3 {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+}
+.lp-guide-who {
+	margin: 8px 0 0;
+	max-width: 62ch;
+	color: var(--carto-ink-soft);
+}
+.lp-plans {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 14px 0 0;
+	padding: 0;
+	list-style: none;
+}
+.lp-plans li {
+	font-family: var(--font-data);
+	font-size: 12px;
+	padding: 3px 9px;
+	border: 1px solid var(--carto-rule-strong);
+	border-radius: 999px;
+	color: var(--carto-ink-soft);
+	background: var(--carto-ground);
+}
+.lp-note {
+	margin: 16px 0 0;
+	padding: 10px 14px;
+	max-width: 66ch;
+	font-size: 15px;
+	background: var(--carto-declared-soft);
+	border-inline-start: 3px solid var(--carto-declared);
+	border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.lp-guide-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 32px;
+}
+@media (min-width: 1000px) {
+	.lp-guide-grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+		gap: 48px;
+	}
+	.lp-guide-aside {
+		position: sticky;
+		top: 88px;
+		align-self: start;
+	}
+}
+.lp-route {
+	padding-top: 20px;
+}
+.lp-route + .lp-route {
+	margin-top: 12px;
+	border-top: 1px dashed var(--carto-rule-strong);
+}
+.lp-route-h {
+	margin: 0 0 8px;
+	font-size: 1.15rem;
+	font-weight: 600;
+}
+.lp-route > p {
+	margin: 0 0 12px;
+	max-width: 64ch;
+	color: var(--carto-ink-soft);
+}
+.lp-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 4px 0 16px;
+}
+.lp-actions .lp-actions {
+	margin: 0;
+}
+.lp-cta {
+	font-weight: 600;
+	text-decoration: none !important;
+}
+.lp-steps {
+	margin-top: 4px;
+}
+.lp-steps .ui-step-text h3 {
+	font-family: var(--font-display);
+	font-size: 1.05rem;
+	font-weight: 600;
+}
+.lp-steps .ui-step-body p {
+	margin: 0;
+	max-width: 64ch;
+}
+.lp-inline-url {
+	font-size: 0.85em;
+}
+.lp-shot {
+	margin: 12px 0 0;
+}
+.lp-shot img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-md);
+}
+.lp-guide-aside {
+	display: grid;
+	gap: 16px;
+	padding-top: 20px;
+	min-width: 0;
+}
+.lp-trouble h4 {
+	margin: 4px 0 8px;
+	font-size: 1rem;
+	font-weight: 600;
+}
+.lp-trouble .ui-acc-body p {
+	margin: 0;
+}
+
+/* ── Try it ─────────────────────────────────────────────────────────────── */
+.lp-prompts {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+	gap: 16px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.lp-prompt .lp-block {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+.lp-prompt .lp-block pre {
+	flex: 1;
+}
+
+/* ── Why it's different ─────────────────────────────────────────────────── */
+.lp-section .ui-feature-grid {
+	--ui-panel-radius: var(--r-lg);
+}
+.lp-section .ui-feature-card {
+	border-top: 3px solid var(--_ui-feature-accent, var(--carto-accent));
+}
+.lp-section .ui-feature-body p {
+	margin: 0;
+	color: var(--carto-ink-soft);
+}
+
+/* ── Feedback ───────────────────────────────────────────────────────────── */
+.lp-feedback-section {
+	padding-bottom: 80px;
+}
+/* Every single-column grid here says minmax(0, 1fr): an auto track grows to
+   its widest content (a select's longest option), past a 360px screen. */
+.lp-feedback-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 24px;
+}
+@media (min-width: 1000px) {
+	.lp-feedback-grid {
+		grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+		gap: 40px;
+	}
+}
+.lp-feedback {
+	background: var(--color-base-100);
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-xl);
+	padding: 20px 16px;
+}
+@media (min-width: 640px) {
+	.lp-feedback {
+		padding: 28px;
+	}
+}
+.lp-form {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 18px;
+}
+.lp-form select {
+	max-width: 100%;
+	text-overflow: ellipsis;
+}
+.lp-form .ui-field {
+	width: 100%;
+}
+/* Form labels read as questions, in sentence case, not as eyebrows. */
+.lp-form .ui-field-label,
+.lp-radios legend {
+	font-family: var(--font-sans);
+	font-size: 15px;
+	font-weight: 500;
+	letter-spacing: 0;
+	text-transform: none;
+	color: var(--color-base-content);
+}
+.lp-form :where(input, select, textarea) {
+	width: 100%;
+	font-size: 16px;
+}
+.lp-radios {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	display: grid;
+	gap: 8px;
+}
+.lp-radios legend {
+	padding: 0;
+	margin-bottom: 6px;
+	font-weight: 500;
+	font-size: 15px;
+}
+.lp-radio {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 10px 12px;
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-md);
+	cursor: pointer;
+}
+.lp-radio:has(input:checked) {
+	border-color: var(--carto-accent);
+	background: var(--carto-accent-soft);
+}
+.lp-radio input {
+	width: auto !important;
+	margin: 4px 0 0;
+	accent-color: var(--carto-accent);
+}
+.lp-radio:has(input:focus-visible) {
+	outline: 2px solid var(--carto-accent);
+	outline-offset: 2px;
+}
+.lp-form-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 18px;
+}
+@media (min-width: 640px) {
+	.lp-form-row {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		align-items: end;
+	}
+}
+.lp-field {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 4px;
+}
+.lp-form :where(.ui-field, input, select, textarea) {
+	min-width: 0;
+}
+.lp-field-meta {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	font-size: 13px;
+}
+.lp-count {
+	margin-inline-start: auto;
+	font-family: var(--font-data);
+	font-size: 12px;
+	color: var(--carto-ink-faint);
+}
+.lp-field-error {
+	color: var(--color-error);
+	font-size: 13.5px;
+}
+.lp-hp {
+	position: absolute;
+	left: -10000px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+.lp-form-notice {
+	margin: 0;
+	padding: 10px 14px;
+	border-radius: var(--r-sm);
+	font-size: 15px;
+	background: var(--carto-declared-soft);
+	border-inline-start: 3px solid var(--carto-declared);
+}
+.lp-form-notice[data-tone="failed"] {
+	background: color-mix(in oklab, var(--color-error) 10%, transparent);
+	border-color: var(--color-error);
+}
+.lp-form-actions {
+	display: flex;
+	gap: 12px;
+}
+.lp-sent p {
+	margin: 0 0 12px;
+}
+.lp-ref {
+	font-size: 1em !important;
+	font-weight: 600;
+}
+.lp-muted {
+	color: var(--carto-ink-soft);
+}
+.lp-feedback-aside {
+	display: grid;
+	gap: 16px;
+	align-content: start;
+}
+.lp-aside-card {
+	padding: 20px;
+	border: 1px solid var(--carto-rule);
+	border-radius: var(--r-lg);
+	background: color-mix(in oklab, var(--color-base-100) 60%, var(--carto-ground));
+}
+.lp-aside-card h3 {
+	margin: 0 0 8px;
+	font-size: 1.05rem;
+	font-weight: 600;
+}
+.lp-aside-card p {
+	margin: 0 0 10px;
+	font-size: 15px;
+	color: var(--carto-ink-soft);
+}
+.lp-aside-card p:last-child {
+	margin-bottom: 0;
+}
+.lp-aside-card strong {
+	color: var(--color-base-content);
+	font-weight: 600;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.lp-footer {
+	border-top: 1px solid var(--carto-rule);
+	background: var(--carto-sunk);
+}
+.lp-footer-inner {
+	max-width: var(--lp-max);
+	margin: 0 auto;
+	padding: 32px var(--lp-gutter) 40px;
+	display: grid;
+	gap: 16px;
+	font-size: 14px;
+	color: var(--carto-ink-soft);
+}
+.lp-footer-brand {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+}
+.lp-footer-brand p {
+	margin: 0;
+	max-width: 70ch;
+}
+.lp-footer-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 20px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.lp-footer-meta {
+	margin: 0;
+	font-size: 13px;
+}

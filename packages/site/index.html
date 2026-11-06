@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en-AU" class="ui-theme theme-cartography">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ABS Data for AI assistants</title>
+    <meta
+      name="description"
+      content="Connect Claude, ChatGPT or Copilot to the Australian Bureau of Statistics. 1,227 tables, every option confirmed to serve data — a free, public MCP connector."
+    />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <script>
+      (function(){try{var m=localStorage.getItem("ui-solid:theme");if(m==="light"||m==="dark"){document.documentElement.style.colorScheme=m}}catch(e){}})()
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    />
+  </head>
+  <body>
+    <div id="app"></div>
+    <noscript>
+      <main style="max-width: 44rem; margin: 3rem auto; padding: 0 16px; line-height: 1.55">
+        <h1>ABS Data for AI assistants</h1>
+        <p>
+          A public connector (an MCP server) that gives Claude, ChatGPT, Copilot and other AI tools the
+          Australian Bureau of Statistics' data — 1,227 tables, every option confirmed to serve data.
+        </p>
+        <p>Connector URL: <code>https://abs-data-front-door.aicolab.workers.dev/mcp</code> — no sign-in needed.</p>
+        <p>
+          In Claude: Customize → Connectors → Add custom connector, paste the URL, choose no sign-in.
+          In ChatGPT: Plugins → + → Add custom MCP server, paste the URL, choose No authentication.
+        </p>
+        <p>
+          <a href="/catalogue">Browse the catalogue</a> · <a href="/api/docs">HTTP API reference</a> ·
+          <a href="https://github.com/AI-CoLab/abs-data-mcp">Source on GitHub</a>
+        </p>
+      </main>
+    </noscript>
+    <script type="module" src="/src/landing/main.tsx"></script>
+  </body>
+</html>
